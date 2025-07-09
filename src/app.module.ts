@@ -14,7 +14,7 @@ import { ConfigModule } from '@nestjs/config/dist';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
+    ConfigModule.forRoot({  
       isGlobal: true,
     }),
     //UsersModule,

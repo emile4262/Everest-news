@@ -15,7 +15,7 @@ constructor() {
 //   async $connect(): Promise<void> {
 //     return super.$connect();
 //   }
-  async onModuleDestroy() { 
+  async onModuleDestroy() {   
     await this.$disconnect();
   }
 //   async $disconnect(): Promise<void> {
