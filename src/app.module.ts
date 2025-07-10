@@ -14,6 +14,10 @@ import { ConfigModule } from '@nestjs/config/dist';
 import { TopicsModule } from './topic/topic.module';
 import { TopicsController } from './topic/topic.controller';
 import { TopicsService } from './topic/topic.service';
+import { UserTopicSubscriptionsModule } from './user-topic-subscriptions/user-topic-subscriptions.module';
+import { User } from './auth/public.decorateur';
+import { UserTopicSubscriptionsController } from './user-topic-subscriptions/user-topic-subscriptions.controller';
+import { UserTopicSubscriptionsService } from './user-topic-subscriptions/user-topic-subscriptions.service';
 
 @Module({
   imports: [
@@ -23,10 +27,11 @@ import { TopicsService } from './topic/topic.service';
     //UsersModule,
     AuthModule,
     UsersModule,
-    TopicsModule, 
+    TopicsModule,
+    UserTopicSubscriptionsModule, 
      ],
-  controllers: [AppController, UsersController,TopicsController],
-  providers: [AppService, UsersService, JwtAuthGuard, TopicsService,
+  controllers: [AppController, UsersController,TopicsController, UserTopicSubscriptionsController],
+  providers: [AppService, UsersService, JwtAuthGuard, TopicsService, UserTopicSubscriptionsService,
     RolesGuard, ],
 })
 export class AppModule {}

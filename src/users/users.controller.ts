@@ -43,7 +43,7 @@ export class UsersController {
 
   @Post()
   // @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  // @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Créer un nouvel utilisateur' })
   @ApiResponse({
     status: 201,
@@ -64,7 +64,7 @@ export class UsersController {
     return this.usersService.login(email, password);
   }
 
-   @UseGuards(JwtAuthGuard, RolesGuard) 
+  @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN) 
   @Get()
   @ApiOperation({ summary: 'Obtenir tous les utilisateurs avec pagination' })

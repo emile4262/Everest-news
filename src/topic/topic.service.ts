@@ -93,6 +93,7 @@ export class TopicsService {
     };
   }
 
+  // obténir tout les sujets actives
 
   async findActive() {
     return await this.prisma.topic.findMany({

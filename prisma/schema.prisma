@@ -33,10 +33,12 @@ model User {
   otp               String?    
   otpExpires        DateTime?  
   lastPasswordResetAt   DateTime?
+
   // Relations
-  // subscriptions         UserTopicSubscription[]
-  // readArticles          UserArticleRead[]
- // externalContentViews  ExternalContentView[]
+
+  subscriptions         UserTopicSubscription[]
+  //readArticles          UserArticleRead[]
+  //externalContentViews  ExternalContentView[]
 
   @@map("users")
 }
@@ -58,9 +60,25 @@ model Topic {
   updatedAt   DateTime @updatedAt
 
   // Relations
-   //subscriptions    UserTopicSubscription[]
+
+   subscriptions    UserTopicSubscription[]
    //externalContents ExternalContent[]
    //scrapingSources  ScrapingSource[]
 
   @@map("topics")
+}
+
+// Table de liaison pour les abonnements utilisateurs aux sujets
+model UserTopicSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  topicId   String
+  createdAt DateTime @default(now())
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, topicId])
+  @@map("user_topic_subscriptions")
 }
