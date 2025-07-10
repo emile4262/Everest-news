@@ -7,12 +7,12 @@ export class UpdateTopicDto {
   @IsOptional()
   @IsString()
   name?: string;
-
+  
   @ApiProperty()
   @IsOptional()
   @IsString()
   description?: string;
-  
+      
 
   @ApiProperty() 
   @IsOptional()
