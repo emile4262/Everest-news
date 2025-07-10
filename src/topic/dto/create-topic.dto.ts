@@ -111,7 +111,7 @@ export class TopicQueryDto {
 }
 
 export class PaginatedTopicsDto {
-  @ApiProperty({ type: [TopicResponseDto] })
+  @ApiProperty({ type: [TopicResponseDto] }) 
   data: TopicResponseDto[];
 
   @ApiProperty({ example: 100 })
