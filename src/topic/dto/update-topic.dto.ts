@@ -12,8 +12,9 @@ export class UpdateTopicDto {
   @IsOptional()
   @IsString()
   description?: string;
+  
 
-  @ApiProperty()
+  @ApiProperty() 
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
