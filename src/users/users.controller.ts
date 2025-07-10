@@ -186,6 +186,7 @@ async forgotPassword(@Body() dto: ResetPasswordDto) {
   return this.usersService.sendOtp(dto);
 }
 
+
 @Post('reset-password')
 // @UseGuards(JwtAuthGuard, RolesGuard) 
 // @Roles(Role.admin, Role.user)

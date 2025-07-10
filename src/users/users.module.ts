@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1d' }, // Durée du token
+      
     }),],
   controllers: [UsersController],
   providers: [UsersService, PrismaService],

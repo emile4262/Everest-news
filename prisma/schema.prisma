@@ -47,3 +47,20 @@ enum UserRole {
   MANAGER
   ADMIN
 }
+
+// Table des sujets d'intérêt
+model Topic {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+   //subscriptions    UserTopicSubscription[]
+   //externalContents ExternalContent[]
+   //scrapingSources  ScrapingSource[]
+
+  @@map("topics")
+}

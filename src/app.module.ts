@@ -11,6 +11,9 @@ import { PassportModule } from '@nestjs/passport';
 import { RolesGuard } from './auth/roles.guard';
 import { JwtAuthGuard } from './auth/jwt-auth/jwt-auth.guard';
 import { ConfigModule } from '@nestjs/config/dist';
+import { TopicsModule } from './topic/topic.module';
+import { TopicsController } from './topic/topic.controller';
+import { TopicsService } from './topic/topic.service';
 
 @Module({
   imports: [
@@ -19,10 +22,11 @@ import { ConfigModule } from '@nestjs/config/dist';
     }),
     //UsersModule,
     AuthModule,
-    UsersModule, 
+    UsersModule,
+    TopicsModule, 
      ],
-  controllers: [AppController, UsersController,],
-  providers: [AppService, UsersService, JwtAuthGuard,
+  controllers: [AppController, UsersController,TopicsController],
+  providers: [AppService, UsersService, JwtAuthGuard, TopicsService,
     RolesGuard, ],
 })
 export class AppModule {}
