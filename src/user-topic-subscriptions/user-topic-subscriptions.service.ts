@@ -66,7 +66,9 @@ export class UserTopicSubscriptionsService {
       throw error;
     }
   }
-
+ 
+  // Récupère toutes les subscriptions avec pagination et filtrage.
+  
   async findAll(query: UserTopicSubscriptionQueryDto): Promise<PaginatedUserTopicSubscriptionsDto> {
     const { page, limit, userId, topicId, sortBy, sortOrder } = query;
 

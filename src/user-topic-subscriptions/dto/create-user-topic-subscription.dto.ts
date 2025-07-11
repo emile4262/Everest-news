@@ -20,10 +20,10 @@ export class UserTopicSubscriptionResponseDto {
   @ApiProperty({ description: 'ID unique de la subscription' })
   id: string;
 
-  @ApiProperty({ description: 'ID de l\'utilisateur' })
+  //@ApiProperty({ description: 'ID de l\'utilisateur' })
   userId: string;
 
-  @ApiProperty({ description: 'ID du topic' })
+  //@ApiProperty({ description: 'ID du topic' })
   topicId: string;
 
   @ApiProperty({ description: 'Date de création' })

@@ -1,11 +1,6 @@
-// src/modules/users/users.service.ts
 import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { CreateUserDto, UsersQueryDto, ChangePasswordDto, UserResponseDto, PaginatedUsersDto, ResetPasswordDto, VerifyOtpDto  } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-// import { UsersQueryDto } from './dto/users-query.dto';
-// import { ChangePasswordDto } from './dto/change-password.dto';
-// import { UserResponseDto } from './dto/user-response.dto';
-// import { PaginatedUsersDto } from './dto/paginated-users.dto';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma.service';
 import { User, UserRole } from 'generated/prisma';
@@ -19,8 +14,8 @@ import { stringify } from 'querystring';
 @Injectable()
 export class UsersService {
   [x: string]: any;
-  updateProfile // Vérifier si le nouvel email n'est pas déjà utilisé
-    (id: any, updateUserDto: UpdateUserDto): UserResponseDto | PromiseLike<UserResponseDto> {
+  updateProfile 
+    (id: any, UpdateUserDto: UpdateUserDto): UserResponseDto | PromiseLike<UserResponseDto> {
       throw new Error('Method not implemented.');
   }
   getById(id: any) {
@@ -47,10 +42,7 @@ export class UsersService {
     return isPasswordValid ? user : null;
   }
 
-
-  /**
-   * Créer un nouvel utilisateur
-   */
+  // Crée un nouvel utilisateur
   async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
     // Vérifier si l'email existe déjà
     const existingUser = await this.prisma.user.findUnique({
@@ -75,10 +67,8 @@ export class UsersService {
     return new UserResponseDto(user);
   }
 
-  /**
-   * Obtenir tous les utilisateurs avec pagination et filtres
-   */
-
+  // Récupère tous les utilisateurs avec pagination et filtrage
+  
   async findAll(query: UsersQueryDto): Promise<PaginatedUsersDto> {
   let { page, limit, role, isActive, search, sortBy, sortOrder } = query;
 
@@ -151,9 +141,8 @@ export class UsersService {
 }
 
 
-  /**
-   * Obtenir un utilisateur par ID
-   */
+  // Récupère un utilisateur par son ID
+
   async findOne(id: string): Promise<UserResponseDto> {
     const user = await this.prisma.user.findUnique({
       where: { id },
@@ -177,18 +166,16 @@ export class UsersService {
     return new UserResponseDto(user);
   }
 
-  /**
-   * Obtenir un utilisateur par email (pour l'authentification)
-   */
+  // Change le mot de passe de l'utilisateur en envoyant un email de confirmation
+
   async findByEmail(email: string): Promise<User | null> {
     return this.prisma.user.findUnique({
       where: { email },
     });
   }
 
-  /**
-   * Mettre à jour un utilisateur
-   */
+  // Change le mot de passe de l'utilisateur
+
   async update(id: string, updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
     // Vérifier si l'utilisateur existe
     const existingUser = await this.prisma.user.findUnique({
@@ -230,9 +217,7 @@ export class UsersService {
     return new UserResponseDto(updatedUserdto);
   }
 
-  /**
-   * Supprimer un utilisateur (soft delete)
-   */
+  // Supprimer un utilisateur (soft delete)
   async remove(id: string): Promise<{ message: string }> {
     const user = await this.prisma.user.findUnique({
       where: { id },
@@ -277,19 +262,19 @@ export class UsersService {
     throw new NotFoundException('Utilisateur introuvable');
   }
 
-  // ⚠️ Limite de 1 fois par mois pour les utilisateurs non-admin
-  // if (user.role !== 'admin' && user.lastPasswordResetAt) {
-  //   const now = new Date();
-  //   const nextAllowed = new Date(user.lastPasswordResetAt);
-  //   nextAllowed.setMonth(nextAllowed.getMonth() + 1);
+  //  Limite de 1 fois par mois pour les utilisateurs non-admin
+  if (user.role !== 'ADMIN' && user.lastPasswordResetAt) {
+    const now = new Date();
+    const nextAllowed = new Date(user.lastPasswordResetAt);
+    nextAllowed.setMonth(nextAllowed.getMonth() + 1);
 
-  //   if (now < nextAllowed) {
-  //     const daysLeft = Math.ceil((nextAllowed.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-  //     throw new BadRequestException(
-  //       `Vous avez déjà réinitialisé votre mot de passe ce mois-ci. Veuillez réessayer dans ${daysLeft} jour(s).`,
-  //     );
-  //   }
-  // }
+    if (now < nextAllowed) {
+      const daysLeft = Math.ceil((nextAllowed.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      throw new BadRequestException(
+        `Vous avez déjà réinitialisé votre mot de passe ce mois-ci. Veuillez réessayer dans ${daysLeft} jour(s).`,
+      );
+    }
+  }
   // Générer un OTP aléatoire à 6 chiffres
      if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     throw new BadRequestException('Configuration de l\'email manquante');
@@ -328,7 +313,7 @@ export class UsersService {
             <table width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; padding: 30px; border-radius: 8px;">
               <tr>
                 <td align="center" style="font-size: 24px; font-weight: bold; color: #333333;">
-                  Réinitialisation du mot de passe 🔐
+                  Réinitialisation du mot de passe 
                 </td>
               </tr>
               <tr>
@@ -361,7 +346,7 @@ export class UsersService {
               <tr>
                 <td style="padding-top: 30px; font-size: 14px; color: #555555;">
                   Merci,<br/>
-                  <p> L'équipe Ecommerce Merci </p>
+                  <p> Everest Consulting </p>
                 </td>
               </tr>
             </table>
@@ -373,7 +358,7 @@ export class UsersService {
   `;
 
   const mailOptions = {
-    from: `"Support Ecommerce" <${process.env.EMAIL_USER}>`,
+    from: `"Support Everest news" <${process.env.EMAIL_USER}>`,
     to: dto.email,
     subject: 'Réinitialisation de mot de passe - Code OTP',
     html: htmlContent,
@@ -392,9 +377,9 @@ export class UsersService {
   };  
 }
 
-   /**
-   * Réinitialise le mot de passe avec l'OTP
-   */
+   
+    // Réinitialise le mot de passe avec l'OTP
+   
    async resetPasswordWithOtp(dto: VerifyOtpDto) {
     // Nettoyer les données d'entrée
     const email = dto.email.trim().toLowerCase();
@@ -439,9 +424,9 @@ export class UsersService {
         where: { email: dto.email },
         data: { 
           password: hashedPassword,
-          otp: null, // Supprimer l'OTP utilisé
-          otpExpires: null, // Supprimer la date d'expiration
-          updatedAt: new Date() // Mettre à jour la date de modification
+          otp: null, 
+          otpExpires: null, 
+          updatedAt: new Date() 
         },
       });
       console.log('Mot de passe réinitialisé avec succès pour:', email);

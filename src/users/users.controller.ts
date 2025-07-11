@@ -35,9 +35,8 @@ import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Users')
 @Controller('users')
-// @UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
-@UseInterceptors(ClassSerializerInterceptor)
+// @ApiBearerAuth()
+ @UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -66,6 +65,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN) 
+  @ApiBearerAuth()
   @Get()
   @ApiOperation({ summary: 'Obtenir tous les utilisateurs avec pagination' })
   @ApiResponse({
@@ -125,6 +125,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
+  @ApiBearerAuth()
   @Get(':id')
   @ApiOperation({ summary: 'Obtenir un utilisateur par ID' })
   @ApiParam({ name: 'id', description: 'ID de l\'utilisateur' })
@@ -158,6 +159,7 @@ export class UsersController {
 //   }
 
   @Patch(':id')
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Mettre à jour un utilisateur (Admin seulement)' })
@@ -195,9 +197,10 @@ async resetPassword(@Body() dto: VerifyOtpDto) {
   return this.usersService.resetPasswordWithOtp(dto);
 }
 
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   @Patch(':id/activate')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Activer un utilisateur (Admin seulement)' })
   @ApiParam({ name: 'id', description: 'ID de l\'utilisateur' })
   @ApiResponse({
@@ -210,9 +213,10 @@ async resetPassword(@Body() dto: VerifyOtpDto) {
     return this.usersService.activate(id);
   }
 
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   @Patch(':id/deactivate')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Désactiver un utilisateur (Admin seulement)' })
   @ApiParam({ name: 'id', description: 'ID de l\'utilisateur' })
   @ApiResponse({
@@ -225,8 +229,9 @@ async resetPassword(@Body() dto: VerifyOtpDto) {
     return this.usersService.deactivate(id);
   }
 
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiBearerAuth()
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Supprimer un utilisateur (soft delete - Admin seulement)' })
@@ -247,8 +252,9 @@ async resetPassword(@Body() dto: VerifyOtpDto) {
   }
 
   @Delete(':id/hard')
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Supprimer définitivement un utilisateur (Admin seulement)' })
   @ApiParam({ name: 'id', description: 'ID de l\'utilisateur' })
