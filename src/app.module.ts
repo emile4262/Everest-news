@@ -18,6 +18,9 @@ import { UserTopicSubscriptionsModule } from './user-topic-subscriptions/user-to
 import { User } from './auth/public.decorateur';
 import { UserTopicSubscriptionsController } from './user-topic-subscriptions/user-topic-subscriptions.controller';
 import { UserTopicSubscriptionsService } from './user-topic-subscriptions/user-topic-subscriptions.service';
+import { ArticleModule } from './articles/articles.module';
+import { ArticleService } from './articles/articles.service';
+import { ArticleController } from './articles/articles.controller';
 
 @Module({
   imports: [
@@ -28,10 +31,11 @@ import { UserTopicSubscriptionsService } from './user-topic-subscriptions/user-t
     AuthModule,
     UsersModule,
     TopicsModule,
-    UserTopicSubscriptionsModule, 
+    UserTopicSubscriptionsModule,
+    ArticleModule, 
      ],
-  controllers: [AppController, UsersController,TopicsController, UserTopicSubscriptionsController],
-  providers: [AppService, UsersService, JwtAuthGuard, TopicsService, UserTopicSubscriptionsService,
+  controllers: [AppController, UsersController,TopicsController, UserTopicSubscriptionsController, TopicsController, ArticleController],
+  providers: [AppService, UsersService, JwtAuthGuard, TopicsService, UserTopicSubscriptionsService,ArticleService, 
     RolesGuard, ],
 })
 export class AppModule {}

@@ -13,6 +13,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ArticleCategory {
+  PROJECT_NEWS
+  TUTORIAL
+  OPINION
+  REVIEW
+  HR_HOLIDAYS
+
+}
+
+
+// Enum pour les statuts des articles
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
 
 // Table des utilisateurs
 model User {
@@ -35,7 +52,8 @@ model User {
   lastPasswordResetAt   DateTime?
 
   // Relations
-
+ 
+  articles Article[]
   subscriptions         UserTopicSubscription[]
   //readArticles          UserArticleRead[]
   //externalContentViews  ExternalContentView[]
@@ -81,4 +99,25 @@ model UserTopicSubscription {
 
   @@unique([userId, topicId])
   @@map("user_topic_subscriptions")
+}
+
+// Table des articles internes
+model Article {
+  id          String          @id @default(cuid())
+  title       String
+  content     String
+  summary     String?
+  category    ArticleCategory
+  status      ArticleStatus   @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  authorId    String
+
+  // Relations
+  author     User              @relation(fields: [authorId], references: [id])
+  // readBy     UserArticleRead[]
+  // tags       ArticleTag[]
+
+  @@map("articles")
 }
