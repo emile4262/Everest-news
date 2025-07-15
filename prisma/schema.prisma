@@ -81,7 +81,7 @@ model Topic {
 
    subscriptions    UserTopicSubscription[]
    //externalContents ExternalContent[]
-   //scrapingSources  ScrapingSource[]
+   scrapingSources  ScrapingSource[]
 
   @@map("topics")
 }
@@ -122,5 +122,22 @@ model Article {
   @@map("articles")
 }
 
+ // Table des sources de scraping
+model ScrapingSource {
+  id          String   @id @default(cuid())
+  name        String
+  url         String
+  selector    String? // Sélecteur CSS pour le scraping
+  isActive    Boolean  @default(true)
+  lastScrapedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  topicId     String
+
+  // Relations
+  topic Topic @relation(fields: [topicId], references: [id])
+
+  @@map("scraping_sources")
+}
 
 

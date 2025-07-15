@@ -167,11 +167,8 @@ export class TopicsService {
     const topic = await this.findOne(id);
     
     // Les statistiques seront disponibles quand les relations seront activées
-    // const [subscriptionsCount, externalContentsCount, scrapingSourcesCount] = await Promise.all([
+    // const [subscriptionsCount,  scrapingSourcesCount] = await Promise.all([
     //   this.prisma.userTopicSubscription.count({
-    //     where: { topicId: id },
-    //   }),
-    //   this.prisma.externalContent.count({
     //     where: { topicId: id },
     //   }),
     //   this.prisma.scrapingSource.count({
@@ -183,7 +180,6 @@ export class TopicsService {
       ...topic,
       stats: {
         subscriptionsCount: 0,
-        externalContentsCount: 0,
         scrapingSourcesCount: 0,
       },
     };

@@ -25,6 +25,8 @@ import { Roles } from 'src/auth/public.decorateur';
 export class UserTopicSubscriptionsController {
   constructor(private readonly userTopicSubscriptionsService: UserTopicSubscriptionsService) {}
 
+  // Créer une nouvelle subscription
+  
   @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @Post()
@@ -40,6 +42,8 @@ export class UserTopicSubscriptionsController {
   create(@Body() createUserTopicSubscriptionDto: CreateUserTopicSubscriptionDto) {
     return this.userTopicSubscriptionsService.create(createUserTopicSubscriptionDto);
   }
+
+  // Récupérer toutes les subscriptions avec pagination et filtres
 
   @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
@@ -60,6 +64,7 @@ export class UserTopicSubscriptionsController {
     return this.userTopicSubscriptionsService.findAll(query);
   }
 
+  // Récupérer une subscription 
   @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @Get('stats')
@@ -71,6 +76,8 @@ export class UserTopicSubscriptionsController {
   getStats() {
     return this.userTopicSubscriptionsService.getSubscriptionStats();
   }
+
+  // Récupérer les subscriptions d'un utilisateur
 
   @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
@@ -85,6 +92,8 @@ export class UserTopicSubscriptionsController {
     return this.userTopicSubscriptionsService.getUserSubscriptions(userId);
   }
 
+  // Vérifier si un utilisateur est abonné à un topic
+
   @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @Get('topic/:topicId')
@@ -97,6 +106,8 @@ export class UserTopicSubscriptionsController {
   getTopicSubscriptions(@Param('topicId') topicId: string) {
     return this.userTopicSubscriptionsService.getTopicSubscriptions(topicId);
   }
+
+  // Vérifier si un utilisateur est abonné à un topic
 
   @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
@@ -114,6 +125,8 @@ export class UserTopicSubscriptionsController {
     return this.userTopicSubscriptionsService.findByUserAndTopic(userId, topicId);
   }
 
+  // Récupérer une subscription par ID
+
   @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @Get(':id')
@@ -129,6 +142,8 @@ export class UserTopicSubscriptionsController {
     return this.userTopicSubscriptionsService.findOne(id);
   }
 
+  // Supprimer une subscription par ID
+
   @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @Delete(':id')
@@ -140,6 +155,8 @@ export class UserTopicSubscriptionsController {
   remove(@Param('id') id: string) {
     return this.userTopicSubscriptionsService.remove(id);
   }
+
+  // Supprimer une subscription par utilisateur et topic
 
   @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)

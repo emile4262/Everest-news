@@ -487,9 +487,9 @@ export class UsersService {
     };
   }
 
-  /**
-   * Obtenir les statistiques des utilisateurs
-   */
+  
+   // Obtenir les statistiques des utilisateurs
+   
   async getStats(): Promise<{
     total: number;
     active: number;
@@ -526,9 +526,8 @@ export class UsersService {
     };
   }
 
-  /**
-   * Réactiver un utilisateur
-   */
+   // Réactiver un utilisateur
+   
   async activate(id: string): Promise<UserResponseDto> {
     const user = await this.prisma.user.findUnique({
       where: { id },
@@ -557,9 +556,8 @@ export class UsersService {
     return new UserResponseDto(updatedUser);
   }
 
-  /**
-   * Désactiver un utilisateur
-   */
+   // Désactiver un utilisateur
+  
   async deactivate(id: string): Promise<UserResponseDto> {
     const user = await this.prisma.user.findUnique({
       where: { id },
@@ -654,14 +652,13 @@ async login(email: string, password: string): Promise<{
       },
     });
 
-    // ✅ CORRECTION: Utiliser le rôle depuis la base de données
-    // Au lieu de définir le rôle par email, utilisez celui de la BD
+    //  Utiliser le rôle depuis la base de données
     const userRole = user.role || UserRole.EMPLOYEE; // Fallback si pas de rôle défini
 
     const payload = {
       sub: user.id,
       email: user.email,
-      role: userRole, // ✅ Utiliser le rôle de la BD
+      role: userRole, 
     };
 
     const access_token = this.jwtService.sign(payload, {
@@ -735,7 +732,7 @@ async isUserADMIN(email: string): Promise<boolean> {
   return email === 'bnandoemile@gmail.com';
 }
 
-// ✅ CORRECTION: Méthode pour promouvoir un utilisateur en admin
+//  Méthode pour promouvoir un utilisateur en admin
 async promoteToADMIN(userId: string): Promise<User> {
   const user = await this.prisma.user.findUnique({
     where: { id: userId },
@@ -750,7 +747,7 @@ async promoteToADMIN(userId: string): Promise<User> {
     throw new BadRequestException('Seul bnandoemile@gmail.com peut être administrateur');
   }
 
-  // ✅ CORRECTION: Utiliser l'enum UserRole
+  // Utiliser l'enum UserRole
   return this.prisma.user.update({
     where: { id: userId },
     data: {
@@ -760,7 +757,7 @@ async promoteToADMIN(userId: string): Promise<User> {
   });
 }
 
-// ✅ AJOUT: Méthode pour mettre à jour le rôle d'un utilisateur
+// Méthode pour mettre à jour le rôle d'un utilisateur
 async updateUserRole(userId: string, role: UserRole): Promise<User> {
   const user = await this.prisma.user.findUnique({
     where: { id: userId },
