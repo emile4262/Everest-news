@@ -32,7 +32,7 @@ import { ArticleController } from './articles/articles.controller';
     UsersModule,
     TopicsModule,
     UserTopicSubscriptionsModule,
-    ArticleModule, 
+    ArticleModule,
      ],
   controllers: [AppController, UsersController,TopicsController, UserTopicSubscriptionsController, TopicsController, ArticleController],
   providers: [AppService, UsersService, JwtAuthGuard, TopicsService, UserTopicSubscriptionsService,ArticleService, 

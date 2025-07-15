@@ -117,7 +117,10 @@ model Article {
   // Relations
   author     User              @relation(fields: [authorId], references: [id])
   // readBy     UserArticleRead[]
-  // tags       ArticleTag[]
+  // tags      ArticleTag[]
 
   @@map("articles")
 }
+
+
+

@@ -62,7 +62,7 @@ export class ArticleController {
   @Get()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.EMPLOYEE)
-  @ApiOperation({ summary: 'Lister tous les articles avec filtres et pagination' })
+  @ApiOperation({ summary: 'Lister tous les articles avec filtres par status et pagination' })
   @ApiResponse({ status: 200, description: 'Liste des articles récupérée avec succès.' })
   @ApiResponse({ status: 401, description: 'Non autorisé.' })
   async findAll(@Query() filterDto: FilterArticleDto) {

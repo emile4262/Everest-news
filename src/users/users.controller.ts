@@ -35,14 +35,11 @@ import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Users')
 @Controller('users')
-// @ApiBearerAuth()
  @UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  // @UseGuards(RolesGuard)
-  // @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Créer un nouvel utilisateur' })
   @ApiResponse({
     status: 201,
@@ -64,7 +61,7 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard) 
-  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER) 
   @ApiBearerAuth()
   @Get()
   @ApiOperation({ summary: 'Obtenir tous les utilisateurs avec pagination' })
@@ -84,47 +81,9 @@ export class UsersController {
     return this.usersService.findAll(query);
   }
 
-  // @Get('me')
-  // @ApiOperation({ summary: 'Obtenir les informations de l\'utilisateur connecté' })
-  // @ApiResponse({
-  //   status: 200,
-  //   description: 'Informations utilisateur récupérées avec succès',
-  //   type: UserResponseDto,
-  // })
-  // getProfile(@Req() req: Request) {
-  //   return this.usersService.getById(req.user.id);
-  // }
-
-//  @UseGuards(JwtAuthGuard, RolesGuard)
-//  @Roles(UserRole.ADMIN)
-//   @ApiOperation({ summary: 'Obtenir les statistiques des utilisateurs' })
-//   @ApiResponse({
-//     status: 200,
-//     description: 'Statistiques récupérées avec succès',
-//     schema: {
-//       type: 'object',
-//       properties: {
-//         total: { type: 'number', example: 100 },
-//         active: { type: 'number', example: 85 },
-//         inactive: { type: 'number', example: 15 },
-//         byRole: {
-//           type: 'object',
-//           properties: {
-//             EMPLOYEE: { type: 'number', example: 70 },
-//             MANAGER: { type: 'number', example: 25 },
-//             ADMIN: { type: 'number', example: 5 },
-//           },
-//         },
-//       },
-//     },
-//   })
-//   async getStats() {
-//     return this.usersService.getStats();
-//   }
-
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER , UserRole.EMPLOYEE)
   @ApiBearerAuth()
   @Get(':id')
   @ApiOperation({ summary: 'Obtenir un utilisateur par ID' })
@@ -139,29 +98,10 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
-  // @UseGuards(AuthGuard, RolesGuard) 
-  // @Roles(UserRole.EMPLOYEE, UserRole.ADMIN)
-//   @Patch('me')
-//   @ApiOperation({ summary: 'Mettre à jour son profil' })
-//   @ApiResponse({
-//     status: 200,
-//     description: 'Profil mis à jour avec succès',
-//     type: UserResponseDto,
-//   })
-//   @ApiResponse({ status: 404, description: 'Utilisateur non trouvé' })
-//   @ApiResponse({ status: 409, description: 'Email déjà utilisé' })
-//   async updateProfile(
-//   @Request() req: any,
-//   @Body() updateUserDto: UpdateUserDto,
-// ): Promise<UserResponseDto> {
-//   const { role, ...allowedUpdates } = updateUserDto;
-//   return this.usersService.update(req.user.id, allowedUpdates);
-//   }
-
   @Patch(':id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles( UserRole.EMPLOYEE, UserRole.MANAGER , UserRole.ADMIN)
   @ApiOperation({ summary: 'Mettre à jour un utilisateur (Admin seulement)' })
   @ApiParam({ name: 'id', description: 'ID de l\'utilisateur' })
   @ApiResponse({
@@ -178,11 +118,8 @@ export class UsersController {
     return this.usersService.update(id, updateUserDto);
   }
 
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles(UserRole.ADMIN)
+  
  @Post('forgot-password')
-// @UseGuards(JwtAuthGuard, RolesGuard) 
-// @Roles(Role.admin, Role.user)
 @ApiOperation({ summary: 'Demander un OTP pour réinitialiser le mot de passe (public)' })
 async forgotPassword(@Body() dto: ResetPasswordDto) {
   return this.usersService.sendOtp(dto);
@@ -190,8 +127,6 @@ async forgotPassword(@Body() dto: ResetPasswordDto) {
 
 
 @Post('reset-password')
-// @UseGuards(JwtAuthGuard, RolesGuard) 
-// @Roles(Role.admin, Role.user)
 @ApiOperation({ summary: 'Réinitialiser le mot de passe avec OTP (public)' })
 async resetPassword(@Body() dto: VerifyOtpDto) {
   return this.usersService.resetPasswordWithOtp(dto);

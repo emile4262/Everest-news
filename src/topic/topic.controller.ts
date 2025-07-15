@@ -117,7 +117,7 @@ export class TopicsController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard) 
-  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER) 
+  @Roles( UserRole.ADMIN) 
   @Patch(':id/toggle-active')
   @ApiOperation({ summary: 'Mettre à jour un utilisateur (Admin seulement)' })
     @ApiParam({ name: 'id', description: 'basculer en active ou desactivé' })

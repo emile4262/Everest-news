@@ -3,9 +3,7 @@ import { IsString, IsNotEmpty, IsOptional, IsEnum, IsBoolean, IsUUID } from 'cla
 import { ApiProperty } from '@nestjs/swagger';
 import { ArticleCategory, ArticleStatus } from '@prisma/client'; // Assurez-vous que @prisma/client est correctement importé
 
- // DTO (Data Transfer Object) pour la création d'un nouvel article.
- // Définit les champs requis et optionnels lors de la création.
- 
+//  DTO pour la création d'un article.
 export class CreateArticleDto {
   @ApiProperty({
     description: 'Titre de l\'article',
@@ -55,17 +53,16 @@ export class CreateArticleDto {
 import { PartialType } from '@nestjs/swagger';
 
 
- // Utilise PartialType de Swagger pour rendre tous les champs de CreateArticleDto optionnels.
- 
+// DTO pour la mise à jour d'un article. 
 export class UpdateArticleDto extends PartialType(CreateArticleDto) {
   
 }
 
 
 
- // DTO pour le filtrage et la pagination des articles.
- // Définit les paramètres de requête pour la recherche.
  
+//  DTO pour filtrer les articles lors de la recherche ou de la récupération.
+
 export class FilterArticleDto {
   @ApiProperty({
     description: 'Filtre les articles par titre (recherche partielle)',
@@ -99,7 +96,7 @@ export class FilterArticleDto {
   @ApiProperty({
     description: 'ID de l\'auteur pour filtrer les articles écrits par un utilisateur spécifique',
     required: false,
-    example: 'clw67v2440000w4n23m9d4g5j', // Exemple d'ID CUID
+    example: 'clw67v2440000w4n23m9d4g5j', 
   })
   @IsString()
   @IsUUID()
