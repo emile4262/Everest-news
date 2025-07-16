@@ -80,7 +80,7 @@ model Topic {
   // Relations
 
    subscriptions    UserTopicSubscription[]
-   //externalContents ExternalContent[]
+   externalContents ExternalContent[]
    scrapingSources  ScrapingSource[]
 
   @@map("topics")
@@ -183,7 +183,7 @@ model ExternalContent {
 
   // Relations
   topic Topic                 @relation(fields: [topicId], references: [id])
-  views ExternalContentView[]
+  // views ExternalContentView[]
 
   @@map("external_contents")
 }

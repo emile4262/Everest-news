@@ -12,6 +12,8 @@ import {
   HttpStatus,
   ParseIntPipe,
   UseGuards,
+  ClassSerializerInterceptor,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -26,13 +28,21 @@ import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { NotificationQueryDto } from './dto/create-notification.dto';
 import { NotificationResponseDto } from './dto/create-notification.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { UserRole } from 'generated/prisma';
+import { Roles } from 'src/auth/public.decorateur';
 
 @ApiTags('notifications')
+@ApiBearerAuth()
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller('notifications')
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Créer une nouvelle notification' })
   @ApiResponse({ 
     status: HttpStatus.CREATED, 
@@ -45,6 +55,8 @@ export class NotificationsController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Récupérer toutes les notifications avec filtres' })
   @ApiResponse({ 
     status: HttpStatus.OK, 
@@ -61,6 +73,8 @@ export class NotificationsController {
   }
 
   @Get('stats')
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Obtenir les statistiques des notifications' })
   @ApiResponse({ 
     status: HttpStatus.OK, 
@@ -72,6 +86,8 @@ export class NotificationsController {
   }
 
   @Get('user/:userId')
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Récupérer les notifications d\'un utilisateur' })
   @ApiResponse({ 
     status: HttpStatus.OK, 
@@ -87,6 +103,8 @@ export class NotificationsController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Récupérer une notification par ID' })
   @ApiResponse({ 
     status: HttpStatus.OK, 
@@ -100,6 +118,8 @@ export class NotificationsController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Mettre à jour une notification' })
   @ApiResponse({ 
     status: HttpStatus.OK, 
@@ -116,6 +136,8 @@ export class NotificationsController {
   }
 
   @Patch(':id/read')
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Marquer une notification comme lue' })
   @ApiResponse({ 
     status: HttpStatus.OK, 
@@ -129,6 +151,8 @@ export class NotificationsController {
   }
 
   @Patch('user/:userId/read-all')
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Marquer toutes les notifications d\'un utilisateur comme lues' })
   @ApiResponse({ 
     status: HttpStatus.OK, 
@@ -140,6 +164,8 @@ export class NotificationsController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Supprimer une notification' })
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Notification supprimée avec succès' })
@@ -150,6 +176,8 @@ export class NotificationsController {
   }
 
   @Delete('user/:userId/all')
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Supprimer toutes les notifications d\'un utilisateur' })
   @ApiResponse({ 
     status: HttpStatus.OK, 
@@ -161,6 +189,8 @@ export class NotificationsController {
   }
 
   @Delete('cleanup/:days')
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Nettoyer les anciennes notifications lues' })
   @ApiResponse({ 
     status: HttpStatus.OK, 

@@ -10,7 +10,9 @@ import {
   HttpStatus,
   HttpCode,
   UseGuards,
-  Put
+  Put,
+  UseInterceptors,
+  ClassSerializerInterceptor
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -35,9 +37,9 @@ import { Roles } from 'src/auth/public.decorateur';
 import { JwtAuthGuard } from 'src/auth/jwt-auth/jwt-auth.guard';
 
 @ApiTags('Scraping Sources')
-@Controller('scraping-sources')
-@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
+@UseInterceptors(ClassSerializerInterceptor)
+@Controller('scraping-sources')
 export class ScrapingSourceController {
   constructor(private readonly scrapingSourceService: ScrapingSourceService) {}
 
@@ -63,6 +65,8 @@ export class ScrapingSourceController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Récupérer toutes les sources de scraping avec filtres' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -90,6 +94,8 @@ export class ScrapingSourceController {
   }
 
   @Get('statistics')
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Obtenir les statistiques des sources de scraping' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -109,6 +115,8 @@ export class ScrapingSourceController {
   }
 
   @Get('active')
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Récupérer toutes les sources actives' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -120,6 +128,8 @@ export class ScrapingSourceController {
   }
 
   @Get('topic/:topicId')
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Récupérer les sources d\'un topic spécifique' })
   @ApiParam({ name: 'topicId', description: 'ID du topic' })
   @ApiResponse({
@@ -132,6 +142,8 @@ export class ScrapingSourceController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Récupérer une source de scraping par ID' })
   @ApiParam({ name: 'id', description: 'ID de la source de scraping' })
   @ApiResponse({
@@ -148,6 +160,8 @@ export class ScrapingSourceController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Mettre à jour une source de scraping' })
   @ApiParam({ name: 'id', description: 'ID de la source de scraping' })
   @ApiResponse({
@@ -171,6 +185,8 @@ export class ScrapingSourceController {
   }
 
   @Put(':id/last-scraped')
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Mettre à jour la date du dernier scraping' })
   @ApiParam({ name: 'id', description: 'ID de la source de scraping' })
   @ApiResponse({
@@ -190,6 +206,8 @@ export class ScrapingSourceController {
   }
 
   @Patch(':id/toggle-active')
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Activer/désactiver une source de scraping' })
   @ApiParam({ name: 'id', description: 'ID de la source de scraping' })
   @ApiResponse({
@@ -206,6 +224,8 @@ export class ScrapingSourceController {
   }
 
   @Patch('bulk/toggle-active')
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Activer/désactiver plusieurs sources en lot' })
   @ApiBody({
     schema: {
@@ -241,6 +261,8 @@ export class ScrapingSourceController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Supprimer une source de scraping' })
   @ApiParam({ name: 'id', description: 'ID de la source de scraping' })
