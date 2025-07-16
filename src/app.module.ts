@@ -22,6 +22,8 @@ import { ArticleModule } from './articles/articles.module';
 import { ArticleService } from './articles/articles.service';
 import { ArticleController } from './articles/articles.controller';
 import { ScrapingSourceModule } from './scraping-source/scraping-source.module';
+import { ScrapingLogModule } from './scraping-log/scraping-log.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -35,6 +37,8 @@ import { ScrapingSourceModule } from './scraping-source/scraping-source.module';
     UserTopicSubscriptionsModule,
     ArticleModule,
     ScrapingSourceModule,
+    ScrapingLogModule,
+    NotificationsModule,
      ],
   controllers: [AppController, UsersController,TopicsController, UserTopicSubscriptionsController, TopicsController, ArticleController],
   providers: [AppService, UsersService, JwtAuthGuard, TopicsService, UserTopicSubscriptionsService,ArticleService, 

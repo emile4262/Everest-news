@@ -140,4 +140,58 @@ model ScrapingSource {
   @@map("scraping_sources")
 }
 
+// Table des logs de scraping
+model ScrapingLog {
+  id              String   @id @default(cuid())
+  sourceUrl       String
+  status          String   // SUCCESS, ERROR, WARNING
+  message         String?
+  itemsScraped    Int      @default(0)
+  executionTime   Int?     // en millisecondes
+  createdAt       DateTime @default(now())
 
+  @@map("scraping_logs")
+}
+
+// Table des notifications (optionnel pour futures évolutions)
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String   // INFO, WARNING, SUCCESS, ERROR
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("notifications")
+}
+
+ // Table des contenus externes (scrappés)
+model ExternalContent {
+  id          String              @id @default(cuid())
+  title       String
+  url         String              @unique
+  summary     String?
+  content     String?
+  author      String?
+  source      String
+  type        ExternalContentType
+  publishedAt DateTime?
+  scrapedAt   DateTime            @default(now())
+  isActive    Boolean             @default(true)
+  topicId     String
+
+  // Relations
+  topic Topic                 @relation(fields: [topicId], references: [id])
+  views ExternalContentView[]
+
+  @@map("external_contents")
+}
+
+// Enum pour les types de contenu externe
+enum ExternalContentType {
+  ARTICLE
+  VIDEO
+  COURSE
+  TUTORIAL
+}
