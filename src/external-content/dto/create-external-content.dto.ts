@@ -26,7 +26,7 @@ export class CreateExternalContentDto {
   @ApiPropertyOptional({ description: 'Contenu complet' })
   @IsOptional()
   @IsString()
-  content?: string;
+  content: string;
 
   @ApiPropertyOptional({ description: 'Auteur du contenu' })
   @IsOptional()
@@ -47,7 +47,7 @@ export class CreateExternalContentDto {
   publishedAt?: string;
 
   @ApiProperty({ description: 'ID du topic associé' })
-  @IsUUID()
+  @IsString()
   topicId: string;
 
   @ApiPropertyOptional({ description: 'Statut actif', default: true })
@@ -58,6 +58,11 @@ export class CreateExternalContentDto {
 }
 
 export class UpdateExternalContentDto {
+
+  @ApiProperty({ description: 'ID du contenu externe' })
+  @IsString()
+  id: string;
+
   @ApiPropertyOptional({ description: 'Titre du contenu' })
   @IsOptional()
   @IsString()
@@ -76,7 +81,7 @@ export class UpdateExternalContentDto {
   @ApiPropertyOptional({ description: 'Contenu complet' })
   @IsOptional()
   @IsString()
-  content?: string;
+  content: string;
 
   @ApiPropertyOptional({ description: 'Auteur du contenu' })
   @IsOptional()
@@ -100,7 +105,7 @@ export class UpdateExternalContentDto {
 
   @ApiPropertyOptional({ description: 'ID du topic associé' })
   @IsOptional()
-  @IsUUID()
+  @IsString()
   topicId?: string;
 
   @ApiPropertyOptional({ description: 'Statut actif' })
@@ -112,6 +117,7 @@ export class UpdateExternalContentDto {
 
 export class ExternalContentResponseDto {
   @ApiProperty()
+  @IsString()
   id: string;
 
   @ApiProperty()
@@ -121,10 +127,10 @@ export class ExternalContentResponseDto {
   url: string;
 
   @ApiProperty({ required: false })
-  summary?: string;
+  summary: string | null;
 
   @ApiProperty({ required: false })
-  content?: string;
+  content: string;
 
   @ApiProperty({ required: false })
   author?: string;
@@ -148,17 +154,20 @@ export class ExternalContentResponseDto {
   topicId: string;
 
   @ApiProperty({ required: false })
+  @IsString()
   topic?: {
     id: string;
     name: string;
   };
 
-  @ApiProperty({ required: false })
-  views?: {
-    id: string;
-    viewedAt: Date;
-    userId: string;
-  }[];
+//   @ApiProperty({ required: false })
+//   @IsUUID()
+
+//   views?: {
+//     id: string;
+//     viewedAt: Date;
+//     userId: string;
+//   }[];
 
   @ApiProperty({ required: false })
   viewsCount?: number;
@@ -177,7 +186,7 @@ export class ExternalContentQueryDto {
 
   @ApiPropertyOptional({ description: 'Filtrer par topic' })
   @IsOptional()
-  @IsUUID()
+  @IsString()
   topicId?: string;
 
   @ApiPropertyOptional({ description: 'Filtrer par source' })

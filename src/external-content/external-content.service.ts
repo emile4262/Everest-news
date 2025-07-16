@@ -7,6 +7,17 @@ import { Prisma } from '@prisma/client';
 export class ExternalContentService {
   constructor(private prisma: PrismaService) {}
 
+  // Fonction utilitaire pour transformer les données de la base vers le DTO
+  private transformToDto(item: any): ExternalContentResponseDto {
+    return {
+      ...item,
+      content: item.content ?? undefined,
+      summary: item.summary ?? undefined,
+      author: item.author ?? undefined,
+      publishedAt: item.publishedAt ?? undefined,
+    };
+  }
+
   async create(createDto: CreateExternalContentDto): Promise<ExternalContentResponseDto> {
     try {
       // Vérifier si le topic existe
@@ -39,20 +50,17 @@ export class ExternalContentService {
               name: true,
             }
           },
-          views: {
-            select: {
-              id: true,
-              viewedAt: true,
-              userId: true,
-            }
-          }
+          // views: {
+          //   select: {
+          //     id: true,
+          //     viewedAt: true,
+          //     userId: true,
+          //   }
+          // }
         }
       });
 
-      return {
-        ...externalContent,
-        viewsCount: externalContent.views.length,
-      };
+      return this.transformToDto(externalContent);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
@@ -64,99 +72,88 @@ export class ExternalContentService {
   }
 
   async findAll(query: ExternalContentQueryDto): Promise<{
-    data: ExternalContentResponseDto[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  }> {
-    const { page = 1, limit = 10, search, type, topicId, source, isActive, sortBy = 'scrapedAt', sortOrder = 'desc' } = query;
-    
-    const skip = (page - 1) * limit;
-    
-    const where: any = {
-      ...(isActive !== undefined && { isActive }),
-      ...(type && { type }),
-      ...(topicId && { topicId }),
-      ...(source && { source: { contains: source, mode: 'insensitive' } }),
-      ...(search && {
-        OR: [
-          { title: { contains: search, mode: 'insensitive' } },
-          { author: { contains: search, mode: 'insensitive' } },
-          { summary: { contains: search, mode: 'insensitive' } },
-        ]
-      }),
-    };
+  data: ExternalContentResponseDto[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}> {
+  const {
+    page = 1,
+    limit = 10,
+    search,
+    type,
+    topicId,
+    source,
+    isActive,
+    sortBy = 'scrapedAt',
+    sortOrder = 'desc'
+  } = query;
 
-    const [data, total] = await Promise.all([
-      this.prisma.externalContent.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: {
-          [sortBy]: sortOrder
-        },
-        include: {
-          topic: {
-            select: {
-              id: true,
-              name: true,
-            }
-          },
-          views: {
-            select: {
-              id: true,
-              viewedAt: true,
-              userId: true,
-            }
-          }
-        }
-      }),
-      this.prisma.externalContent.count({ where })
-    ]);
+  const skip = (page - 1) * limit;
 
-    const totalPages = Math.ceil(total / limit);
+  const where: any = {
+    ...(typeof isActive === 'boolean' && { isActive }), 
+    ...(type && { type }),
+    ...(topicId && { topicId }),
+    ...(source && {
+      source: { contains: source, mode: 'insensitive' }
+    }),
+    ...(search && {
+      OR: [
+        { title: { contains: search, mode: 'insensitive' } },
+        { author: { contains: search, mode: 'insensitive' } },
+        { summary: { contains: search, mode: 'insensitive' } }
+      ]
+    })
+  };
 
-    return {
-      data: data.map(item => ({
-        ...item,
-        viewsCount: item.views.length,
-      })),
-      total,
-      page,
-      limit,
-      totalPages
-    };
-  }
-
-  async findOne(id: string): Promise<ExternalContentResponseDto> {
-    const externalContent = await this.prisma.externalContent.findUnique({
-      where: { id },
+  const [data, total] = await Promise.all([
+    this.prisma.externalContent.findMany({
+      where,
+      skip,
+      take: Number(limit), 
+      orderBy: { [sortBy]: sortOrder },
       include: {
         topic: {
           select: {
             id: true,
-            name: true,
-          }
-        },
-        views: {
-          select: {
-            id: true,
-            viewedAt: true,
-            userId: true,
+            name: true
           }
         }
       }
-    });
+    }),
+    this.prisma.externalContent.count({ where })
+  ]);
 
-    if (!externalContent) {
-      throw new NotFoundException(`Contenu externe avec l'ID ${id} non trouvé`);
+  const totalPages = Math.ceil(total / limit);
+
+  return {
+    data: data.map(item => this.transformToDto(item)),
+    total,
+    page,
+    limit,
+    totalPages
+  };
+}
+
+  async findOne(id: string): Promise<ExternalContentResponseDto> {
+  const content = await this.prisma.externalContent.findUnique({
+    where: { id },
+    include: {
+      topic: { select: { id: true, name: true } }
     }
+  });
 
-    return {
-      ...externalContent,
-      viewsCount: externalContent.views.length,
-    };
+  if (!content) {
+    throw new NotFoundException(`Contenu avec l'ID ${id} non trouvé`);
+  }
+
+  return this.transformToDto(content);
+}
+
+  async findById(id: string): Promise<ExternalContentResponseDto> {
+    return this.findOne(id);
   }
 
   async update(id: string, updateDto: UpdateExternalContentDto): Promise<ExternalContentResponseDto> {
@@ -204,20 +201,17 @@ export class ExternalContentService {
               name: true,
             }
           },
-          views: {
-            select: {
-              id: true,
-              viewedAt: true,
-              userId: true,
-            }
-          }
+          // views: {
+          //   select: {
+          //     id: true,
+          //     viewedAt: true,
+          //     userId: true,
+          //   }
+          // }
         }
       });
 
-      return {
-        ...updatedContent,
-        viewsCount: updatedContent.views.length,
-      };
+      return this.transformToDto(updatedContent);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
@@ -265,20 +259,17 @@ export class ExternalContentService {
             name: true,
           }
         },
-        views: {
-          select: {
-            id: true,
-            viewedAt: true,
-            userId: true,
-          }
-        }
+        // views: {
+        //   select: {
+        //     id: true,
+        //     viewedAt: true,
+        //     userId: true,
+        //   }
+        // }
       }
     });
 
-    return contents.map(content => ({
-      ...content,
-      viewsCount: content.views.length,
-    }));
+    return contents.map(content => this.transformToDto(content));
   }
 
   async findBySource(source: string): Promise<ExternalContentResponseDto[]> {
@@ -294,20 +285,17 @@ export class ExternalContentService {
             name: true,
           }
         },
-        views: {
-          select: {
-            id: true,
-            viewedAt: true,
-            userId: true,
-          }
-        }
+        // views: {
+        //   select: {
+        //     id: true,
+        //     viewedAt: true,
+        //     userId: true,
+        //   }
+        // }
       }
     });
 
-    return contents.map(content => ({
-      ...content,
-      viewsCount: content.views.length,
-    }));
+    return contents.map(content => this.transformToDto(content));
   }
 
   async findByType(type: ExternalContentType): Promise<ExternalContentResponseDto[]> {
@@ -323,59 +311,49 @@ export class ExternalContentService {
             name: true,
           }
         },
-        views: {
-          select: {
-            id: true,
-            viewedAt: true,
-            userId: true,
-          }
-        }
+        // views: {
+        //   select: {
+        //     id: true,
+        //     viewedAt: true,
+        //     userId: true,
+        //   }
+        // }
       }
     });
 
-    return contents.map(content => ({
-      ...content,
-      viewsCount: content.views.length,
-    }));
+    return contents.map(content => this.transformToDto(content));
   }
 
-  async toggleActive(id: string): Promise<ExternalContentResponseDto> {
-    const existingContent = await this.prisma.externalContent.findUnique({
-      where: { id }
-    });
-
-    if (!existingContent) {
-      throw new NotFoundException(`Contenu externe avec l'ID ${id} non trouvé`);
+ async toggleActive(id: string): Promise<ExternalContentResponseDto> {
+  const existingContent = await this.prisma.externalContent.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      isActive: true 
     }
+  });
 
-    const updatedContent = await this.prisma.externalContent.update({
-      where: { id },
-      data: {
-        isActive: !existingContent.isActive
-      },
-      include: {
-        topic: {
-          select: {
-            id: true,
-            name: true,
-          }
-        },
-        views: {
-          select: {
-            id: true,
-            viewedAt: true,
-            userId: true,
-          }
-        }
-      }
-    });
-
-    return {
-      ...updatedContent,
-      viewsCount: updatedContent.views.length,
-    };
+  if (!existingContent) {
+    throw new NotFoundException(`Contenu externe avec l'ID ${id} non trouvé`);
   }
 
+  const updatedContent = await this.prisma.externalContent.update({
+    where: { id },
+    data: {
+      isActive: !existingContent.isActive
+    },
+    include: {
+      topic: {
+        select: {
+          id: true,
+          name: true
+        }
+      }
+    }
+  });
+
+  return this.transformToDto(updatedContent);
+}
   async getStats(): Promise<{
     total: number;
     byType: Record<ExternalContentType, number>;

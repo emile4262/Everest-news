@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-// import { JwtStrategy } from './jwt.strategy/jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { UsersController } from 'src/users/users.controller';

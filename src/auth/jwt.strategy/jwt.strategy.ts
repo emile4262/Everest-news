@@ -2,8 +2,6 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { UsersService } from 'src/users/users.service';
-// import { Admin } from 'typeorm';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -12,7 +10,7 @@ constructor(
    configService: ConfigService,
 ) {
    const secret = configService.get<string>('JWT_SECRET') as string;
-   console.log('JWT_SECRET utilisé par JwtStrategy:', secret); // <-- Ajoute ceci
+   console.log('JWT_SECRET utilisé par JwtStrategy:', secret); 
    super({
      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
      ignoreExpiration: false,

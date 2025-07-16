@@ -25,6 +25,8 @@ import { ScrapingSourceModule } from './scraping-source/scraping-source.module';
 import { ScrapingLogModule } from './scraping-log/scraping-log.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ExternalContentModule } from './external-content/external-content.module';
+import { ExternalContentController } from './external-content/external-content.controller';
+import { ExternalContentService } from './external-content/external-content.service';
 
 @Module({
   imports: [
@@ -42,8 +44,8 @@ import { ExternalContentModule } from './external-content/external-content.modul
     NotificationsModule,
     ExternalContentModule,
      ],
-  controllers: [AppController, UsersController,TopicsController, UserTopicSubscriptionsController, TopicsController, ArticleController],
-  providers: [AppService, UsersService, JwtAuthGuard, TopicsService, UserTopicSubscriptionsService,ArticleService, 
+  controllers: [AppController, UsersController,TopicsController, UserTopicSubscriptionsController, TopicsController, ArticleController, ExternalContentController],
+  providers: [AppService, UsersService, JwtAuthGuard, TopicsService, UserTopicSubscriptionsService,ArticleService, ExternalContentService,
     RolesGuard, ],
 })
 export class AppModule {}
