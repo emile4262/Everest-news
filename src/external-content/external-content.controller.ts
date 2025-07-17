@@ -25,7 +25,6 @@ import {
 import { ExternalContentService } from './external-content.service';
 import {
   CreateExternalContentDto,
-  UpdateExternalContentDto,
   ExternalContentQueryDto,
   ExternalContentResponseDto,
   ExternalContentType,
@@ -34,6 +33,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { UserRole } from 'generated/prisma';
 import { Roles } from 'src/auth/public.decorateur';
+import { UpdateExternalContentDto } from './dto/update-external-content.dto';
 
 @ApiTags('External Content')
 @ApiBearerAuth()
@@ -114,26 +114,26 @@ export class ExternalContentController {
     return this.externalContentService.getStats();
   }
 
-  @Get('topic/:topicId')
-  @UseGuards(JwtAuthGuard, RolesGuard) 
-  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
-  @ApiOperation({ summary: 'Récupérer les contenus externes par topic' })
-  @ApiParam({ name: 'topicId', description: 'ID du topic' })
-  @ApiResponse({
-    status: 200,
-    description: 'Liste des contenus externes du topic',
-    type: [ExternalContentResponseDto],
-  })
-  @ApiQuery({ name: 'type', required: false, enum: ExternalContentType, description: 'Filtrer par type' })
-  @ApiQuery({ name: 'isActive', required: false, type: Boolean, description: 'Filtrer par statut actif' })
-  @ApiQuery({ name: 'sortBy', required: false, enum: ['scrapedAt', 'publishedAt', 'title'], description: 'Trier par' })
-  @ApiQuery({ name: 'sortOrder', required: false, enum: ['asc', 'desc'], description: 'Ordre de tri' })
-  findByTopic(
-    @Param('topicId', ParseUUIDPipe) topicId: string,
-    @Query() query?: Partial<ExternalContentQueryDto>
-  ): Promise<ExternalContentResponseDto[]> {
-    return this.externalContentService.findByTopic(topicId, query);
-  }
+  // @Get('topic/:topicId')
+  // @UseGuards(JwtAuthGuard, RolesGuard) 
+  // @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
+  // @ApiOperation({ summary: 'Récupérer les contenus externes par topic' })
+  // @ApiParam({ name: 'topicId', description: 'ID du topic' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Liste des contenus externes du topic',
+  //   type: [ExternalContentResponseDto],
+  // })
+  // @ApiQuery({ name: 'type', required: false, enum: ExternalContentType, description: 'Filtrer par type' })
+  // @ApiQuery({ name: 'isActive', required: false, type: Boolean, description: 'Filtrer par statut actif' })
+  // @ApiQuery({ name: 'sortBy', required: false, enum: ['scrapedAt', 'publishedAt', 'title'], description: 'Trier par' })
+  // @ApiQuery({ name: 'sortOrder', required: false, enum: ['asc', 'desc'], description: 'Ordre de tri' })
+  // findByTopic(
+  //   @Param('topicId', ParseUUIDPipe) topicId: string,
+  //   @Query() query?: Partial<ExternalContentQueryDto>
+  // ): Promise<ExternalContentResponseDto[]> {
+  //   return this.externalContentService.findByTopic(topicId, query);
+  // }
 
   @Get('source/:source')
   @UseGuards(JwtAuthGuard, RolesGuard) 
@@ -174,28 +174,28 @@ export class ExternalContentController {
     type: ExternalContentResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Contenu externe non trouvé' })
-  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ExternalContentResponseDto> {
-    return this.externalContentService.findOne(id);
-  }
+  async findOne(@Param('id') id: string): Promise<ExternalContentResponseDto> {
+  return this.externalContentService.findOne(id);
+}
 
-  @Patch(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard) 
-  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
-  @ApiOperation({ summary: 'Mettre à jour un contenu externe' })
-  @ApiParam({ name: 'id', description: 'ID du contenu externe' })
-  @ApiResponse({
-    status: 200,
-    description: 'Contenu externe mis à jour',
-    type: ExternalContentResponseDto,
-  })
-  @ApiResponse({ status: 404, description: 'Contenu externe non trouvé' })
-  @ApiResponse({ status: 409, description: 'URL déjà existante' })
-  update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateDto: UpdateExternalContentDto
-  ): Promise<ExternalContentResponseDto> {
-    return this.externalContentService.update(id, updateDto);
-  }
+@Patch(':id')
+@UseGuards(JwtAuthGuard, RolesGuard) 
+@Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
+@ApiOperation({ summary: 'Mettre à jour un contenu externe' })
+@ApiParam({ name: 'id', description: 'ID du contenu externe' })
+@ApiResponse({
+  status: 200,
+  description: 'Contenu externe mis à jour',
+  type: ExternalContentResponseDto,
+})
+@ApiResponse({ status: 404, description: 'Contenu externe non trouvé' })
+@ApiResponse({ status: 409, description: 'URL déjà existante' })
+update(
+  @Param('id', ParseUUIDPipe) id: string,
+  @Body() dto: UpdateExternalContentDto
+): Promise<ExternalContentResponseDto> {
+  return this.externalContentService.update({ ...dto, id });
+}
 
   @Patch(':id/toggle-active')
   @UseGuards(JwtAuthGuard, RolesGuard) 
@@ -208,9 +208,9 @@ export class ExternalContentController {
     type: ExternalContentResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Contenu externe non trouvé' })
-  toggleActive(@Param('id', ParseUUIDPipe) id: string): Promise<ExternalContentResponseDto> {
-    return this.externalContentService.toggleActive(id);
-  }
+    async toggleActive(@Param('id') id: string) {
+  return this.externalContentService.toggleActive(id);
+}
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard) 
