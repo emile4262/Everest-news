@@ -33,7 +33,7 @@ export class ArticleService {
     // Récupère tous les articles avec des options de filtrage et de pagination.
    
   async findAll(filterDto: FilterArticleDto): Promise<Article[]> {
-  let { title, category, status, authorId, page = 1, limit = 10 } = filterDto;
+  let { title, category, status, authorId,  page = 1, limit = 10 } = filterDto;
 
   // Convertir les valeurs en nombre si jamais elles sont des chaînes
   page = Number(page);
@@ -172,4 +172,13 @@ export class ArticleService {
       },
     });
   }
+
+  async markAsRead(userId: string, articleId: string): Promise<void> {
+  await this.prisma.userArticleRead.upsert({
+    where: { userId_articleId: { userId, articleId } },
+    update: { readAt: new Date() },
+    create: { userId, articleId },
+  });
+}
+
 }

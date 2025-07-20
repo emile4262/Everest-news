@@ -27,6 +27,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { ExternalContentModule } from './external-content/external-content.module';
 import { ExternalContentController } from './external-content/external-content.controller';
 import { ExternalContentService } from './external-content/external-content.service';
+import { ScrapingModule } from './scraping/scraping.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { ExternalContentService } from './external-content/external-content.serv
     ScrapingLogModule,
     NotificationsModule,
     ExternalContentModule,
+    ScrapingModule,
      ],
   controllers: [AppController, UsersController,TopicsController, UserTopicSubscriptionsController, TopicsController, ArticleController, ExternalContentController],
   providers: [AppService, UsersService, JwtAuthGuard, TopicsService, UserTopicSubscriptionsService,ArticleService, ExternalContentService,

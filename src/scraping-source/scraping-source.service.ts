@@ -131,7 +131,7 @@ export class ScrapingSourceService {
         topic: true
       },
       orderBy: {
-        lastScrapedAt: 'asc' // Les plus anciennes en premier pour le scraping
+        lastScrapedAt: 'asc' 
       }
     });
   }
@@ -210,7 +210,7 @@ export class ScrapingSourceService {
   }
 
   async remove(id: string): Promise<void> {
-    await this.findOne(id); // Vérifier que la source existe
+    await this.findOne(id); 
 
     try {
       await this.prisma.scrapingSource.delete({

@@ -31,6 +31,24 @@ export class CreateArticleDto {
   summary?: string;
 
   @ApiProperty({
+    description: 'URL de l\'article (optionnel)',
+    example: 'https://example.com/article',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  url?: string;
+
+  @ApiProperty({
+    description: 'Source de l\'article (optionnel)',
+    example: 'YouTube',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  source?: string;
+
+  @ApiProperty({
     description: 'Catégorie de l\'article',
     enum: ArticleCategory,
     example: ArticleCategory.PROJECT_NEWS,
@@ -82,6 +100,27 @@ export class FilterArticleDto {
   @IsEnum(ArticleCategory)
   @IsOptional()
   category?: ArticleCategory;
+
+
+  @ApiProperty({
+    description: 'URL de l\'article (optionnel)',
+    example: 'https://example.com/article',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  url?: string;
+
+  @ApiProperty({
+    description: 'Source de l\'article (optionnel)',
+    example: 'YouTube',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  source?: string;
+
+
 
   @ApiProperty({
     description: 'Filtre les articles par statut',

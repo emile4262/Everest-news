@@ -16,6 +16,10 @@ export class CreateScrapingSourceDto {
   @IsUrl()
   url: string;
 
+
+  sourceType: string  // 'API' | 'HTML'
+
+
   @ApiPropertyOptional({
     description: 'Sélecteur CSS pour le scraping',
     example: '.article-content'

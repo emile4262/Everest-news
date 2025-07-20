@@ -4,7 +4,6 @@ import { CreateScrapingLogDto } from './dto/create-scraping-log.dto';
 import { UpdateScrapingLogDto } from './dto/update-scraping-log.dto';
 import { ScrapingLogQueryDto } from './dto/create-scraping-log.dto';
 import { ScrapingLog } from './entities/scraping-log.entity';
-import { Prisma } from 'generated/prisma';
 
 @Injectable()
 export class ScrapingLogService {
