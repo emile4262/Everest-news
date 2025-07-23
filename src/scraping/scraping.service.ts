@@ -5,11 +5,15 @@ import puppeteer from 'puppeteer';
 
 @Injectable()
 export class ScrapingService {
+  [x: string]: any;
+  findAll(query: string, maxResults: number) {
+  }
   private readonly logger = new Logger(ScrapingService.name);
   private readonly apiKey = process.env.YOUTUBE_API_KEY;
-  private readonly baseUrl = 'https://www.googleapis.com/youtube/v3/search';
-  private readonly devtoBaseUrl = 'https://dev.to/api/articles';
-  constructor(private readonly http: HttpService) {}
+   private readonly baseUrl = 'https://www.googleapis.com/youtube/v3/search';
+  private readonly devtoApi = process.env.DEVTO_API_KEY;
+  private readonly devtoBaseUrl = 'https://dev.to/api/articles?username=';
+  constructor(private readonly http: HttpService  ) {}
 
   async scrapeByKeyword(query: string, maxResults = 10) {
     const params = {
@@ -36,7 +40,7 @@ export class ScrapingService {
       }));
 
       this.logger.log(`${videos.length} vidéos récupérées pour "${query}"`);
-
+ 
       return videos;
     } catch (error) {
       this.logger.error(`Erreur scraping YouTube : ${error.message}`);
@@ -44,29 +48,33 @@ export class ScrapingService {
     }
   }
 
-  async scrapeDevtoListings(query: string, maxResults: number ) {
+  async scrapeDevtoListings(query: string, maxResults: number, ) {
   const params = {
-      key: this.apiKey,
+      key: this.devtoApi,
       q: query,
       part: 'snippet',
-      maxResults,
+      type: 'article',
+      take: maxResults || 10, 
     };
+
 
   try {
      const response = await firstValueFrom(
         this.http.get(this.devtoBaseUrl, { params})
       );
 
-   const devtoTitles = response.data.items.map((item) => ({
-        title: item.snippet.title,
-        channel: item.snippet.channelTitle,
-        thumbnail: item.snippet.thumbnails.medium.url,
-        publishedAt: item.snippet.publishedAt,
-        description: item.snippet.description,
-      }));
+  const devtoArticles = response.data.map((item) => ({
+  title: item.title,
+  url: `https://dev.to/${item.user.username}/${item.slug}`,
+  publishedAt: item.published_at,
+  author: item.user.name,
+  description: item.description,
+  thumbnail: item.social_image,
+ 
 
-    this.logger.log(` ${devtoTitles.length} articles récupérés depuis Dev.to "${query}"`);
-    return devtoTitles;
+}));
+  this.logger.log(`${devtoArticles.length} articles récupérés pour "${query}"`);
+    return devtoArticles;
 
   } catch (error) {
     this.logger.error(`Erreur scraping Dev.to : ${error.message}`);

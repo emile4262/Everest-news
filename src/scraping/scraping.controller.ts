@@ -12,8 +12,9 @@ import { Roles } from 'src/auth/public.decorateur';
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('scraping')
 export class ScrapingController {
-  constructor(private readonly youtubeService: ScrapingService
-              , private readonly devtoService: ScrapingService
+  constructor(
+    private readonly youtubeService: ScrapingService,
+    private readonly devtoService: ScrapingService
   ) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard) 
@@ -31,9 +32,8 @@ export class ScrapingController {
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @Get('devto')
   @ApiOperation({ summary: 'Scraper les informations du forum develop' })
-  @ApiQuery({ name: 'maxResults', required: false, type: Number, description: 'Nombre maximum de résultats à retourner' })
   @ApiQuery({ name: 'query', required: true, type: String, description: 'recherche' })
-  async scrapeInformationListing(@Query('query') query: string, @Query('maxResults') maxResults = 10) {
-    return this.devtoService.scrapeByKeyword(query, maxResults);
+  async scrapeDevto(@Query('query') query: string, @Query('maxResults') maxResults = 10) {
+    return this.devtoService.scrapeDevtoListings(query, maxResults); 
   }
 }
