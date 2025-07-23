@@ -8,14 +8,12 @@ import { JwtService } from '@nestjs/jwt';
 import { randomInt } from 'crypto';
 import * as nodemailer from 'nodemailer';
 
-import { take } from 'rxjs';
-import { stringify } from 'querystring';
 
 @Injectable()
 export class UsersService {
   [x: string]: any;
   updateProfile 
-    (id: any, UpdateUserDto: UpdateUserDto): UserResponseDto | PromiseLike<UserResponseDto> {
+    (id: any): UserResponseDto | PromiseLike<UserResponseDto> {
       throw new Error('Method not implemented.');
   }
   getById(id: any) {
@@ -26,11 +24,6 @@ export class UsersService {
     private readonly jwtService: JwtService
   ) {}
   
-  // Méthode pour exclure le mot de passe et le rôle
-  private excludeSensitiveFields(user: User): Omit<User, 'password' | 'role'> {
-    const { password, role, ...safeUser } = user;
-    return safeUser;
-  }
 
    async verifyUser(email: string, password: string): Promise<User | null> {
     const user = await this.findByEmail(email);

@@ -12,16 +12,28 @@ import { Roles } from 'src/auth/public.decorateur';
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('scraping')
 export class ScrapingController {
-  constructor(private readonly youtubeService: ScrapingService) {}
+  constructor(private readonly youtubeService: ScrapingService
+              , private readonly devtoService: ScrapingService
+  ) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @Get('youtube')
   @ApiOperation({ summary: 'Scraper YouTube par mot-clé' })
-  @ApiQuery({ name: 'query', required: true, type: String, description: 'Mot-clé de recherche' })
+  @ApiQuery({ name: 'query', required: true, type: String, description: ' recherche' })
   @ApiQuery({ name: 'maxResults', required: false, type: Number, description: 'Nombre maximum de résultats à retourner' })
   async scrapeYouTube(@Query() dto: ScrapingDto) {
     const { query, maxResults = 10 } = dto;
     return this.youtubeService.scrapeByKeyword(query, maxResults);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
+  @Get('devto')
+  @ApiOperation({ summary: 'Scraper les informations du forum develop' })
+  @ApiQuery({ name: 'maxResults', required: false, type: Number, description: 'Nombre maximum de résultats à retourner' })
+  @ApiQuery({ name: 'query', required: true, type: String, description: 'recherche' })
+  async scrapeInformationListing(@Query('query') query: string, @Query('maxResults') maxResults = 10) {
+    return this.devtoService.scrapeByKeyword(query, maxResults);
   }
 }
