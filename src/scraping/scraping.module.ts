@@ -7,5 +7,6 @@ import { PrismaModule } from 'src/prisma.module';
   imports: [HttpModule, PrismaModule, ],
   controllers: [ScrapingController],
   providers: [ScrapingService],
+  exports: [ScrapingService],
 })
 export class ScrapingModule {}

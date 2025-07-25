@@ -1,4 +1,4 @@
-import { ClassSerializerInterceptor, Controller, Get, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import { ClassSerializerInterceptor, Controller, Get, Param, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ScrapingService } from './scraping.service';
 import { ScrapingDto } from './dto/create-scraping.dto';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
@@ -14,7 +14,8 @@ import { Roles } from 'src/auth/public.decorateur';
 export class ScrapingController {
   constructor(
     private readonly youtubeService: ScrapingService,
-    private readonly devtoService: ScrapingService
+    private readonly devtoService: ScrapingService,
+    private readonly scrapingService: ScrapingService
   ) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard) 
@@ -36,4 +37,13 @@ export class ScrapingController {
   async scrapeDevto(@Query('query') query: string, @Query('maxResults') maxResults = 10) {
     return this.devtoService.scrapeDevtoListings(query, maxResults); 
   }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
+  @Get('medium')
+  @ApiOperation({ summary: 'Scraper Medium par mot-clé' })
+  @ApiQuery({ name: 'query', required: true, type: String, description: 'recherche' })
+  async getMediumByTag(@Param('tag') tag: string) {
+  return this.scrapingService.scrapeMediumCategory(tag);
+}
 }
