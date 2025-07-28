@@ -15,7 +15,7 @@ export class ScrapingController {
   constructor(
     private readonly youtubeService: ScrapingService,
     private readonly devtoService: ScrapingService,
-    private readonly scrapingService: ScrapingService
+    // private readonly mediumService: ScrapingService
   ) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard) 
@@ -38,12 +38,12 @@ export class ScrapingController {
     return this.devtoService.scrapeDevtoListings(query, maxResults); 
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
-  @Get('medium')
-  @ApiOperation({ summary: 'Scraper Medium par mot-clé' })
-  @ApiQuery({ name: 'query', required: true, type: String, description: 'recherche' })
-  async getMediumByTag(@Param('tag') tag: string) {
-  return this.scrapingService.scrapeMediumCategory(tag);
-}
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
+  // @Get('medium')
+  // @ApiOperation({ summary: 'Scraper Medium par mot-clé' })
+  // @ApiQuery({ name: 'query', required: true, type: String, description: 'recherche' })
+  // async getMediumByTag(@Param('tag') tag: string) {
+  //   return this.mediumService.scrapeMediumCategory(tag);
+  // }
 }

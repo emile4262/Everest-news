@@ -5,7 +5,6 @@ import cheerio from 'cheerio';
 import axios from 'axios';
 import puppeteer from 'puppeteer';
 
-
 @Injectable()
 export class ScrapingService {
   [x: string]: any;
@@ -16,9 +15,8 @@ export class ScrapingService {
    private readonly baseUrl = 'https://www.googleapis.com/youtube/v3/search';
   private readonly devtoApi = process.env.DEVTO_API_KEY;
   private readonly devtoBaseUrl = 'https://dev.to/api/articles?username=';
-  private readonly mediumApi = process.env.MEDIUM_API_KEY;
-  
-
+  // private readonly mediumApi = process.env.MEDIUM_API_KEY;
+  // private readonly mediumBaseUrl = 'https://api.medium.com/v1/users';
   constructor(private readonly http: HttpService  ) {}
 
   async scrapeByKeyword(query: string, maxResults = 10) {
@@ -88,44 +86,34 @@ export class ScrapingService {
   } 
 }
 
-async scrapeMediumCategory(tag: string): Promise<{ title: string; link: string }[]> {
-    const url = `https://medium.com/tag/${tag}`;
-    this.logger.log(`Navigation vers ${url}`);
+// async scrapeMediumCategory(username: string) {
+//   const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
+//   const page = await browser.newPage();
+//   const url = `https://medium.com/@${username}/latest`;
 
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+//   await page.goto(url, { waitUntil: 'domcontentloaded' });
 
-    const page = await browser.newPage();
-    const data: { title: string; link: string }[] = [];
+//   const articles = await page.evaluate(() => {
+//     const data: any[] = [];
 
-    try {
-      await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
+//     const cards = document.querySelectorAll('article');
 
-      await page.waitForSelector('div.js-postListHandle', { timeout: 30000 });
+//     cards.forEach((card) => {
+//       const title = card.querySelector('h2')?.textContent?.trim();
+//       const link = card.querySelector('a')?.href;
 
-      const articles = await page.$$eval('div.js-postListHandle article', (nodes) => {
-        return nodes.map((el) => {
-          const titleElement = el.querySelector('h2');
-          const linkElement = el.querySelector('a');
+//       if (title && link) {
+//         data.push({ title, link });
+//       }
+//     });
 
-          const title = titleElement?.textContent?.trim() || 'Sans titre';
-          const link = linkElement?.getAttribute('href') || '';
+//     return data;
+//   });
 
-          return { title, link };
-        });
-      });
+//   await browser.close();
+//   return articles;
+// }
 
-      data.push(...articles);
-      this.logger.log(`${data.length} articles trouvés pour la catégorie "${tag}"`);
-    } catch (error) {
-      this.logger.error(`Erreur lors du scraping de Medium : ${error.message}`);
-    } finally {
-      await browser.close();
-    }
+ }
 
-    return data;
-  }
-}
  
