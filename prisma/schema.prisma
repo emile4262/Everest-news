@@ -55,7 +55,7 @@ model User {
  
   articles Article[]
   subscriptions         UserTopicSubscription[]
-  readArticles          UserArticleRead[]
+  //readArticles          UserArticleRead[]
   //externalContentViews  ExternalContentView[]
 
   @@map("users")
@@ -81,7 +81,7 @@ model Topic {
    articles          Article[]              @relation("TopicArticles")   
    subscriptions    UserTopicSubscription[]
    externalContents ExternalContent[]
-   scrapingSources  ScrapingSource[]
+   //scrapingSources  ScrapingSource[]
 
   @@map("topics")
 }
@@ -107,8 +107,8 @@ model Article {
   title       String
   content     String
   summary     String?
-  url         String?          // 👈 Lien vers la vidéo ou blog
-  source      String?          // 'YouTube', 'Dev.to', etc.
+  url         String?          
+  source      String?         
   category    ArticleCategory
   status      ArticleStatus   @default(DRAFT)
   publishedAt DateTime?
@@ -119,43 +119,13 @@ model Article {
   // Relations
   author     User              @relation(fields: [authorId], references: [id])
   topic      Topic?   @relation("TopicArticles", fields: [topicId], references: [id]) 
-   readBy     UserArticleRead[]
+   // readBy     UserArticleRead[]
   // tags      ArticleTag[]
 
   @@map("articles")
 }
 
- // Table des sources de scraping
-model ScrapingSource {
-  id          String   @id @default(cuid())
-  name        String
-  url         String
-  sourceType  String @default("YOUTUBE")
-  selector    String? // Sélecteur CSS pour le scraping
-  isActive    Boolean  @default(true)
-  lastScrapedAt DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  topicId     String
 
-  // Relations
-  topic Topic @relation(fields: [topicId], references: [id])
-
-  @@map("scraping_sources")
-}
-
-// Table des logs de scraping
-model ScrapingLog {
-  id              String   @id @default(cuid())
-  sourceUrl       String
-  status          String   // SUCCESS, ERROR, WARNING
-  message         String?
-  itemsScraped    Int      @default(0)
-  executionTime   Int?     // en millisecondes
-  createdAt       DateTime @default(now())
-
-  @@map("scraping_logs")
-}
 
 // Table des notifications (optionnel pour futures évolutions)
 model Notification {
@@ -200,17 +170,4 @@ enum ExternalContentType {
   TUTORIAL
 }
 
-// Table pour tracker les lectures d'articles
-model UserArticleRead {
-  id        String   @id @default(cuid())
-  userId    String
-  articleId String
-  readAt    DateTime @default(now())
 
-  // Relations
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, articleId])
-  @@map("user_article_reads")
-}

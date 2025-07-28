@@ -43,7 +43,7 @@ export class RolesGuard implements CanActivate {
     }
 
     const userRole = user.role;
-    console.log(`Rôle de l'utilisateur: ${userRole}`);
+     console.log(`Rôle de l'utilisateur: ${userRole}`);
 
     // Vérification que le rôle de l'utilisateur est valide
     if (!Object.values(UserRole).includes(userRole)) {

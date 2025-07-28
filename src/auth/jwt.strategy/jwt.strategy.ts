@@ -10,7 +10,7 @@ constructor(
    configService: ConfigService,
 ) {
    const secret = configService.get<string>('JWT_SECRET') as string;
-   console.log('JWT_SECRET utilisé par JwtStrategy:', secret); 
+  //  console.log('JWT_SECRET utilisé par JwtStrategy:', secret); 
    super({
      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
      ignoreExpiration: false,

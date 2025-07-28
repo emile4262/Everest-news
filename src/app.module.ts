@@ -18,8 +18,8 @@ import { UserTopicSubscriptionsService } from './user-topic-subscriptions/user-t
 import { ArticleModule } from './articles/articles.module';
 import { ArticleService } from './articles/articles.service';
 import { ArticleController } from './articles/articles.controller';
-import { ScrapingSourceModule } from './scraping-source/scraping-source.module';
-import { ScrapingLogModule } from './scraping-log/scraping-log.module';
+// import { ScrapingSourceModule } from './scraping-source/scraping-source.module';
+// import { ScrapingLogModule } from './scraping-log/scraping-log.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ExternalContentModule } from './external-content/external-content.module';
 import { ExternalContentController } from './external-content/external-content.controller';
@@ -41,8 +41,8 @@ import { ScheduleModule } from '@nestjs/schedule';
     TopicsModule,
     UserTopicSubscriptionsModule,
     ArticleModule,
-    ScrapingSourceModule,
-    ScrapingLogModule,
+    // ScrapingSourceModule,
+    // ScrapingLogModule,
     NotificationsModule,
     ExternalContentModule,
     ScrapingModule,
