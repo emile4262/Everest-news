@@ -12,7 +12,7 @@ export class ScrapingService {
   }
   private readonly logger = new Logger(ScrapingService.name);
   private readonly apiKey = process.env.YOUTUBE_API_KEY;
-   private readonly baseUrl = 'https://www.googleapis.com/youtube/v3/search';
+  private readonly baseUrl = 'https://www.googleapis.com/youtube/v3/search';
   private readonly devtoApi = process.env.DEVTO_API_KEY;
   private readonly devtoBaseUrl = 'https://dev.to/api/articles?username=';
   // private readonly mediumApi = process.env.MEDIUM_API_KEY;
@@ -58,7 +58,7 @@ export class ScrapingService {
       q: query,
       part: 'snippet',
       type: 'article',
-      take: maxResults || 10, 
+      maxResults, 
     };
 
 
