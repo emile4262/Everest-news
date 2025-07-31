@@ -65,12 +65,12 @@ export class UsersService {
   async findAll(query: UsersQueryDto): Promise<PaginatedUsersDto> {
   let { page, limit, role, isActive, search, sortBy, sortOrder } = query;
 
-  // ✅ Conversion en nombre pour éviter les erreurs Prisma (type string → number)
+  //  Conversion en nombre pour éviter les erreurs Prisma (type string → number)
   const currentPage = Number(page) || 1;
   const currentLimit = Number(limit) || 10;
   const skip = (currentPage - 1) * currentLimit;
 
-  // ✅ Préparation du filtre
+  //  Préparation du filtre
   const where: any = {};
 
   if (role) {
@@ -92,13 +92,13 @@ export class UsersService {
     ];
   }
 
-  // ✅ Préparation du tri
+  // Préparation du tri
   const orderBy: any = {};
   if (sortBy) {
   orderBy[sortBy] = sortOrder;
   }
 
-  // ✅ Exécution parallèle des requêtes
+  //  Exécution parallèle des requêtes
   const [users, total] = await Promise.all([
     this.prisma.user.findMany({
       where,

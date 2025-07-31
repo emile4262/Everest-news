@@ -1,4 +1,4 @@
-import { IsEmail, IsString, IsOptional, IsEnum, MinLength, IsBoolean, IsNotEmpty, Matches } from 'class-validator';
+import { IsEmail, IsString, IsOptional, IsEnum, MinLength, IsBoolean, IsNotEmpty, Matches, IsArray } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 // import { UserRole } from '@prisma/client';
 import { Exclude, Transform } from 'class-transformer';
@@ -18,7 +18,7 @@ export class CreateUserDto {
   @IsEmail()
   email: string;
 
-@ApiProperty({ example: 'securePassword123' })
+  @ApiProperty({ example: 'securePassword123' })
   @IsString()
   @MinLength(8)
   password: string;
@@ -37,6 +37,9 @@ export class CreateUserDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  // @ApiProperty({})
+  // userTopicSubscription: never[];
 }
 
 export class LoginUserDto {

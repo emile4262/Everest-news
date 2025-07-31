@@ -44,9 +44,9 @@ model User {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   admin     Boolean  @default(false)
-  accountLockedUntil  DateTime? // pour bloquer l'utilisateur temporairement
+  accountLockedUntil  DateTime? 
   failedLoginAttempts Int       @default(0)
-  refreshToken        String?   // pour le token de rafraîchissement
+  refreshToken        String?   
   otp               String?    
   otpExpires        DateTime?  
   lastPasswordResetAt   DateTime?

@@ -156,15 +156,15 @@ export class ArticleController {
 
   // Marque un article comme lu par l'utilisateur.
    
-  @Patch(':id/read')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.EMPLOYEE) 
-  @ApiOperation({ summary: 'Marquer un article comme lu' })
-  @ApiResponse({ status: 200, description: 'Article marqué comme lu.' })
-  @ApiResponse({ status: 404, description: 'Article non trouvé.' })
-  @ApiResponse({ status: 401, description: 'Non autorisé.' })
-  async markAsRead(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
-    const userId = req.user.userId;
-    return this.articleService.markAsRead(userId, id);
-  }
+  // @Patch(':id/read')
+  // @UseGuards(AuthGuard('jwt'), RolesGuard)
+  // @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.EMPLOYEE) 
+  // @ApiOperation({ summary: 'Marquer un article comme lu' })
+  // @ApiResponse({ status: 200, description: 'Article marqué comme lu.' })
+  // @ApiResponse({ status: 404, description: 'Article non trouvé.' })
+  // @ApiResponse({ status: 401, description: 'Non autorisé.' })
+  // async markAsRead(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+  //   const userId = req.user.userId;
+  //   return this.articleService.markAsRead(userId, id);
+  // }
 } 

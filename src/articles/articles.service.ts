@@ -173,12 +173,12 @@ export class ArticleService {
     });
   }
 
-  async markAsRead(userId: string, articleId: string): Promise<void> {
-  await this.prisma.userArticleRead.upsert({
-    where: { userId_articleId: { userId, articleId } },
-    update: { readAt: new Date() },
-    create: { userId, articleId },
-  });
-}
+//   async markAsRead(userId: string, articleId: string): Promise<void> {
+//   await this.prisma.userArticleRead.upsert({
+//     where: { userId_articleId: { userId, articleId } },
+//     update: { readAt: new Date() },
+//     create: { userId, articleId },
+//   });
+// }
 
 }

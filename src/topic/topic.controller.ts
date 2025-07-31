@@ -63,31 +63,31 @@ export class TopicsController {
     return this.topicsService.findAll(query);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard) 
-  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER) 
-  @Get('active')
-  @ApiOperation({ summary: 'Obtenir tous les sujets avec pagination' })
-    @ApiResponse({
-      status: 200,
-      description: 'Liste des sujets récupérée avec succès',
-      type: PaginatedTopicsDto,
-    })
-  findActive() {
-   return this.topicsService.findActive();
-  }
+  // @UseGuards(JwtAuthGuard, RolesGuard) 
+  // @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER) 
+  // @Get('active')
+  // @ApiOperation({ summary: 'Obtenir tous les sujets avec pagination' })
+  //   @ApiResponse({
+  //     status: 200,
+  //     description: 'Liste des sujets récupérée avec succès',
+  //     type: PaginatedTopicsDto,
+  //   })
+  // findActive() {
+  //  return this.topicsService.findActive();
+  // }
 
-  @UseGuards(JwtAuthGuard, RolesGuard) 
-  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER) 
-  @Get('name/:name')
-  @ApiOperation({ summary: 'Obtenir tous les noms des sujets  avec pagination' })
-    @ApiResponse({
-      status: 200,
-      description: 'Liste les noms des sujets récupérée avec succès',
-      type: PaginatedTopicsDto,
-    })
-  findByName(@Param('name') name: string) {
-    return this.topicsService.findByName(name);
-  }
+  // @UseGuards(JwtAuthGuard, RolesGuard) 
+  // @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER) 
+  // @Get('name/:name')
+  // @ApiOperation({ summary: 'Obtenir tous les noms des sujets  avec pagination' })
+  //   @ApiResponse({
+  //     status: 200,
+  //     description: 'Liste les noms des sujets récupérée avec succès',
+  //     type: PaginatedTopicsDto,
+  //   })
+  // findByName(@Param('name') name: string) {
+  //   return this.topicsService.findByName(name);
+  // }
 
   @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER) 
@@ -116,18 +116,18 @@ export class TopicsController {
     return this.topicsService.update(id, updateTopicDto);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard) 
-  @Roles( UserRole.ADMIN) 
-  @Patch(':id/toggle-active')
-  @ApiOperation({ summary: 'Mettre à jour un utilisateur (Admin seulement)' })
-    @ApiParam({ name: 'id', description: 'basculer en active ou desactivé' })
-    @ApiResponse({
-      status: 200,
-      description: 'sujet mis à jour avec succès',
-    })
-  toggleActive(@Param('id') id: string) {
-    return this.topicsService.toggleActive(id);
-  }
+  // @UseGuards(JwtAuthGuard, RolesGuard) 
+  // @Roles( UserRole.ADMIN) 
+  // @Patch(':id/toggle-active')
+  // @ApiOperation({ summary: 'Mettre à jour un utilisateur (Admin seulement)' })
+  //   @ApiParam({ name: 'id', description: 'basculer en active ou desactivé' })
+  //   @ApiResponse({
+  //     status: 200,
+  //     description: 'sujet mis à jour avec succès',
+  //   })
+  // toggleActive(@Param('id') id: string) {
+  //   return this.topicsService.toggleActive(id);
+  // }
 
   @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER) 

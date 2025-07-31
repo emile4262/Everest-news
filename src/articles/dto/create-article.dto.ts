@@ -102,14 +102,14 @@ export class FilterArticleDto {
   category?: ArticleCategory;
 
 
-  @ApiProperty({
-    description: 'URL de l\'article (optionnel)',
-    example: 'https://example.com/article',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  url?: string;
+  // @ApiProperty({
+  //   description: 'URL de l\'article (optionnel)',
+  //   example: 'https://example.com/article',
+  //   required: false,
+  // })
+  // @IsString()
+  // @IsOptional()
+  // url?: string;
 
   @ApiProperty({
     description: 'Source de l\'article (optionnel)',
