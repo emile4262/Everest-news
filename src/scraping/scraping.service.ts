@@ -1,9 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import cheerio from 'cheerio';
-import axios from 'axios';
-import puppeteer from 'puppeteer';
 
 @Injectable()
 export class ScrapingService {
@@ -52,7 +49,7 @@ export class ScrapingService {
     }
   }
 
-  async scrapeDevtoListings(query: string, maxResults: number, ) {
+  async scrapeDevtoListings(query: string, maxResults= 10, ) {
   const params = {
       key: this.devtoApi,
       q: query,

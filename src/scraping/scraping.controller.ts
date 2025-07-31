@@ -34,7 +34,9 @@ export class ScrapingController {
   @Get('devto')
   @ApiOperation({ summary: 'Scraper les informations du forum develop' })
   @ApiQuery({ name: 'query', required: true, type: String, description: 'recherche' })
-  async scrapeDevto(@Query('query') query: string, @Query('maxResults') maxResults = 10) {
+  @ApiQuery({ name: 'maxResults', required: false, type: Number, description: 'Nombre maximum de résultats à retourner' })
+  async scrapeDevto(@Query() dto:ScrapingDto) {
+    const { query, maxResults = 10 } = dto;
     return this.devtoService.scrapeDevtoListings(query, maxResults); 
   }
 
