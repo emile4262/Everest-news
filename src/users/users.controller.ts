@@ -25,7 +25,7 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { CreateUserDto, UsersQueryDto, ChangePasswordDto, UserResponseDto, PaginatedUsersDto, LoginUserDto, VerifyOtpDto, ResetPasswordDto   } from './dto/create-user.dto';
+import { CreateUserDto, UsersQueryDto, UserResponseDto, PaginatedUsersDto, LoginUserDto, VerifyOtpDto, ResetPasswordDto   } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard,  } from 'src/auth/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
@@ -73,7 +73,7 @@ export class UsersController {
   })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
-  @ApiQuery({ name: 'role', required: false, enum: UserRole })
+  @ApiQuery({ name: 'role', required: false, isArray: true})
   @ApiQuery({ name: 'isActive', required: false, type: Boolean })
   @ApiQuery({ name: 'search', required: false, type: String })
   @ApiQuery({ name: 'sortBy', required: false, type: String, example: 'createdAt' })
@@ -133,37 +133,37 @@ async resetPassword(@Body() dto: VerifyOtpDto) {
   return this.usersService.resetPasswordWithOtp(dto);
 }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  @Patch(':id/activate')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Activer un utilisateur (Admin seulement)' })
-  @ApiParam({ name: 'id', description: 'ID de l\'utilisateur' })
-  @ApiResponse({
-    status: 200,
-    description: 'Utilisateur activé avec succès',
-    type: UserResponseDto,
-  })
-  @ApiResponse({ status: 404, description: 'Utilisateur non trouvé' })
-  async activate(@Param('id') id: string): Promise<UserResponseDto> {
-    return this.usersService.activate(id);
-  }
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(UserRole.ADMIN)
+  // @Patch(':id/activate')
+  // @ApiBearerAuth()
+  // @ApiOperation({ summary: 'Activer un utilisateur (Admin seulement)' })
+  // @ApiParam({ name: 'id', description: 'ID de l\'utilisateur' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Utilisateur activé avec succès',
+  //   type: UserResponseDto,
+  // })
+  // @ApiResponse({ status: 404, description: 'Utilisateur non trouvé' })
+  // async activate(@Param('id') id: string): Promise<UserResponseDto> {
+  //   return this.usersService.activate(id);
+  // }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  @Patch(':id/deactivate')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Désactiver un utilisateur (Admin seulement)' })
-  @ApiParam({ name: 'id', description: 'ID de l\'utilisateur' })
-  @ApiResponse({
-    status: 200,
-    description: 'Utilisateur désactivé avec succès',
-    type: UserResponseDto,
-  })
-  @ApiResponse({ status: 404, description: 'Utilisateur non trouvé' })
-  async deactivate(@Param('id') id: string): Promise<UserResponseDto> {
-    return this.usersService.deactivate(id);
-  }
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(UserRole.ADMIN)
+  // @Patch(':id/deactivate')
+  // @ApiBearerAuth()
+  // @ApiOperation({ summary: 'Désactiver un utilisateur (Admin seulement)' })
+  // @ApiParam({ name: 'id', description: 'ID de l\'utilisateur' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Utilisateur désactivé avec succès',
+  //   type: UserResponseDto,
+  // })
+  // @ApiResponse({ status: 404, description: 'Utilisateur non trouvé' })
+  // async deactivate(@Param('id') id: string): Promise<UserResponseDto> {
+  //   return this.usersService.deactivate(id);
+  // }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)

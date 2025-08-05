@@ -12,8 +12,11 @@ import {
   Req,
   HttpStatus,
   HttpCode,
+  BadRequestException,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiResponse, ApiOperation, ApiConsumes, ApiParam, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport'; 
 import { UserRole } from '@prisma/client'; 
 import { Request } from 'express'; 
@@ -21,7 +24,10 @@ import { ArticleService } from './articles.service';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/public.decorateur';
 import { CreateArticleDto, FilterArticleDto, UpdateArticleDto } from './dto/create-article.dto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth/jwt-auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { extname } from 'path';
+import { diskStorage } from 'multer';
+
 
 // Interface pour étendre l'objet Request d'Express avec l'utilisateur authentifié
 interface AuthenticatedRequest extends Request {
@@ -56,13 +62,12 @@ export class ArticleController {
   }
 
   
-   // Récupère tous les articles, avec des options de filtrage et de pagination.
-    // Tous les utilisateurs authentifiés peuvent lister les articles.
-   
+   // Récupère tous les articles, avec des options de filtrage et de pagination.   
   @Get()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.EMPLOYEE)
   @ApiOperation({ summary: 'Lister tous les articles avec filtres par status et pagination' })
+  @ApiQuery({ name: 'category', required: false, isArray: true})
   @ApiResponse({ status: 200, description: 'Liste des articles récupérée avec succès.' })
   @ApiResponse({ status: 401, description: 'Non autorisé.' })
   async findAll(@Query() filterDto: FilterArticleDto) {
@@ -167,4 +172,62 @@ export class ArticleController {
   //   const userId = req.user.userId;
   //   return this.articleService.markAsRead(userId, id);
   // }
+
+  @ApiOperation({ summary: "Uploader une image et l'associer à un articles" })
+  @ApiConsumes('multipart/form-data')
+  @ApiParam({ name: 'articleId', description: 'ID du article' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Image du article (jpg, jpeg, png, gif)',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Image uploadée avec succès' })
+  @ApiResponse({ status: 400, description: 'Fichier invalide ou manquant' })
+  @Post(':articleId/upload-image')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads/articles',
+        filename: (req, file, callback) => {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const ext = extname(file.originalname);
+          callback(null, `article-${uniqueSuffix}${ext}`);
+        },
+      }),
+      fileFilter: (req, file, callback) => {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
+          return callback(new BadRequestException('Seules les images sont autorisées!'), false);
+        }
+        callback(null, true);
+      },
+      limits: {
+        fileSize: 1024 * 1024 * 5, 
+      },
+    }),
+  )
+  async uploadProductImage(
+    @Param('articleId') articleId: string,
+    @UploadedFile() file: Express.Multer.File
+  ) {
+    if (!file) {
+      throw new BadRequestException('Fichier non fourni');
+    }
+    
+    const imageUrl = `/uploads/article/${file.filename}`;
+    
+    await this.articleService.updateArticleImage(articleId, imageUrl);
+    
+    return {
+      url: imageUrl,
+      filename: file.filename,
+      articleId: articleId
+    };
+  }
 } 

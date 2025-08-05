@@ -1,6 +1,7 @@
 import { IsString, IsUrl, IsOptional, IsEnum, IsBoolean, IsDateString, IsUUID } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ExternalContent } from '@prisma/client';
 
 export enum ExternalContentType {
   ARTICLE = 'ARTICLE',
@@ -10,6 +11,7 @@ export enum ExternalContentType {
 }
 
 export class CreateExternalContentDto {
+
   @ApiProperty({ description: 'Titre du contenu' })
   @IsString()
   title: string;
@@ -116,6 +118,9 @@ export class CreateExternalContentDto {
 // }
 
 export class ExternalContentResponseDto {
+
+  data: ExternalContentResponseDto[];
+
   @ApiProperty()
   @IsString()
   id: string;
@@ -174,17 +179,33 @@ export class ExternalContentResponseDto {
 }
 
 export class ExternalContentQueryDto {
+
   @ApiPropertyOptional({ description: 'Recherche par titre ou auteur' })
   @IsOptional()
   @IsString()
   search?: string;
 
-  @ApiPropertyOptional({ enum: ExternalContentType, description: 'Filtrer par type' })
+  @ApiPropertyOptional({ enum: ExternalContentType, description: 'Filtrer par type', 
+    example: ['ARTICLE', 'VIDEO', 'COURSE', 'TUTORIAL'],
+    type: 'array',
+    items: {
+      type: 'string',
+    },
+  })
   @IsOptional()
-  @IsEnum(ExternalContentType)
-  type?: ExternalContentType;
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch (e) {
+        return value.split(',').map((item) => item.trim());
+      }
+    }
+    return value;
+  })
+  type?: ExternalContentType[];
 
-  @ApiPropertyOptional({ description: 'Filtrer par topic' })
+  // @ApiPropertyOptional({ description: 'Filtrer par topic' })
   @IsOptional()
   @IsString()
   topicId?: string;
@@ -200,12 +221,12 @@ export class ExternalContentQueryDto {
   @Transform(({ value }) => value === 'true' || value === true)
   isActive?: boolean;
 
-  @ApiPropertyOptional({ description: 'Page', default: 1 })
+  // @ApiPropertyOptional({ description: 'Page', default: 1 })
   @IsOptional()
   @Transform(({ value }) => parseInt(value))
   page?: number = 1;
 
-  @ApiPropertyOptional({ description: 'Limite par page', default: 10 })
+  // @ApiPropertyOptional({ description: 'Limite par page', default: 10 })
   @IsOptional()
   @Transform(({ value }) => parseInt(value))
   limit?: number = 10;
@@ -219,4 +240,28 @@ export class ExternalContentQueryDto {
   @IsOptional()
   @IsString()
   sortOrder?: 'asc' | 'desc' = 'desc';
+}
+
+export class PaginatedExternalContentDto {
+  @ApiProperty({ type: [ExternalContentResponseDto] })
+  data: ExternalContentResponseDto[];
+
+  @ApiProperty({ example: 100 })
+  total: number;
+
+  @ApiProperty({ example: 1 })
+  page: number;
+
+  @ApiProperty({ example: 10 })
+  limit: number;
+
+  @ApiProperty({ example: 10 })
+  totalPages: number;
+
+  @ApiProperty({ example: true })
+  hasNext: boolean;
+
+  @ApiProperty({ example: false })
+  hasPrevious: boolean;
+
 }

@@ -7,6 +7,8 @@ import { User, UserRole } from 'generated/prisma';
 import { JwtService } from '@nestjs/jwt';
 import { randomInt } from 'crypto';
 import * as nodemailer from 'nodemailer';
+import { Article } from '@prisma/client';
+import { FilterArticleDto } from 'src/articles/dto/create-article.dto';
 
 
 @Injectable()
@@ -73,9 +75,10 @@ export class UsersService {
   //  Préparation du filtre
   const where: any = {};
 
-  if (role) {
-    where.role = role;
-  }
+if (role) {
+  where.role = Array.isArray(role) ? { in: role } : role;
+}
+
 
  if (isActive !== undefined) {
   // Convertir 'true' (string) ou true (boolean) en boolean
@@ -132,7 +135,6 @@ export class UsersService {
     hasPrevious: currentPage > 1,
   };
 }
-
 
   // Récupère un utilisateur par son ID
 

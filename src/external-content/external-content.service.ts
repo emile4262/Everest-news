@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ConflictException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { CreateExternalContentDto,  ExternalContentQueryDto, ExternalContentResponseDto, ExternalContentType } from './dto/create-external-content.dto';
+import { CreateExternalContentDto,  ExternalContentQueryDto, ExternalContentResponseDto, ExternalContentType, PaginatedExternalContentDto } from './dto/create-external-content.dto';
 import {  Prisma } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
 import { UpdateExternalContentDto } from './dto/update-external-content.dto';
@@ -74,71 +74,79 @@ export class ExternalContentService {
     }
   }
 
-  async findAll(query: ExternalContentQueryDto): Promise<{
-  data: ExternalContentResponseDto[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}> {
+  async findAll(query: ExternalContentQueryDto): Promise<PaginatedExternalContentDto> {
   const {
     page = 1,
     limit = 10,
     search,
     type,
-    topicId,
-    source,
+    // topicId,
+    // source,
     isActive,
-    sortBy = 'scrapedAt',
-    sortOrder = 'desc'
+    sortBy ,
+    sortOrder 
   } = query;
 
-  const skip = (page - 1) * limit;
+ //  Conversion en nombre pour éviter les erreurs Prisma (type string → number)
+  const currentPage = Number(page) || 1;
+  const currentLimit = Number(limit) || 10;
+  const skip = (currentPage - 1) * currentLimit;
 
-  const where: any = {
-    ...(typeof isActive === 'boolean' && { isActive }), 
-    ...(type && { type }),
-    ...(topicId && { topicId }),
-    ...(source && {
-      source: { contains: source, mode: 'insensitive' }
-    }),
-    ...(search && {
-      OR: [
+  const where: any = {}
+  if (type) {
+    where.type = Array.isArray(type) ? { in: type} :type;
+  }
+
+  if (isActive !== undefined) {
+  // Convertir 'true' (string) ou true (boolean) en boolean
+  where.isActive = String(isActive) === 'true';
+}
+
+    if (search) {
+     where.OR = [
         { title: { contains: search, mode: 'insensitive' } },
         { author: { contains: search, mode: 'insensitive' } },
         { summary: { contains: search, mode: 'insensitive' } }
-      ]
-    })
-  };
+      ];
+    }
 
-  const [data, total] = await Promise.all([
-    this.prisma.externalContent.findMany({
+   // Préparation du tri
+  const orderBy: any = {};
+  if (sortBy) {
+  orderBy[sortBy] = sortOrder;
+  }
+  //  Exécution parallèle des requêtes
+  const[ExternalContent, total] = await Promise.all([ 
+     this.prisma.ExternalContent.findMany({
       where,
       skip,
-      take: Number(limit), 
-      orderBy: { [sortBy]: sortOrder },
-      include: {
-        topic: {
-          select: {
-            id: true,
-            name: true
-          }
-        }
-      }
-    }),
-    this.prisma.externalContent.count({ where })
-  ]);
+      take: currentLimit, 
+      orderBy,
+      select:{ 
+        id: true,
+        title: true,
+        author: true,
+        summary: true,
+        
+      },
+       }),
+       this.prisma.externalContent.count({ where})
+       ])
 
-  const totalPages = Math.ceil(total / limit);
+      const totalPages = Math.ceil(total / currentLimit);
 
-  return {
-    data: data.map(item => this.transformToDto(item)),
+   return {
+    data: ExternalContent,
     total,
-    page,
-    limit,
-    totalPages
-  };
-}
+    totalPages,
+    page: currentPage,
+    limit: currentLimit,
+    hasNext: currentPage < totalPages,
+    hasPrevious: currentPage > 1,
+  }; 
+  }
+
+  
 
  async findOne(id: string): Promise<ExternalContentResponseDto> {
   const content = await this.prisma.externalContent.findUnique({

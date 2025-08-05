@@ -111,7 +111,7 @@ export class UserResponseDto {
   jobTitle?: string | null;
 
   @ApiProperty({ enum: UserRole, example: UserRole.EMPLOYEE })
-  role: UserRole;
+  role: string;
 
   @ApiProperty({ example: true })
   isActive: boolean;
@@ -144,10 +144,26 @@ export class UsersQueryDto {
   @Transform(({ value }) => parseInt(value))
   limit?: number = 10;
 
-  @ApiPropertyOptional({ enum: UserRole })
+  @ApiPropertyOptional({
+    description: 'Début du numéro de téléphone',
+    example: ['ADMIN', 'EMPLOYEE', 'MANAGER'],
+    type: 'array',
+    items: {
+      type: 'string',
+    },
+  })
   @IsOptional()
-  @IsEnum(UserRole)
-  role?: UserRole;
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch (e) {
+        return value.split(',').map((item) => item.trim());
+      }
+    }
+    return value;
+  })
+  role?:UserRole[];
 
   @ApiPropertyOptional({ example: true })
   @IsOptional()
@@ -159,7 +175,7 @@ export class UsersQueryDto {
   @IsOptional()
   @IsString()
   search?: string;
-
+ 
   @ApiPropertyOptional({ example: 'firstName' })
   @IsOptional()
   @IsString()

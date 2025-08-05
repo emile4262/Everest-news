@@ -30,22 +30,28 @@ export class ArticleService {
   }
 
  
-    // Récupère tous les articles avec des options de filtrage et de pagination.
+// Récupère tous les articles avec des options de filtrage et de pagination.
    
   async findAll(filterDto: FilterArticleDto): Promise<Article[]> {
-  let { title, category, status, authorId,  page = 1, limit = 10 } = filterDto;
+  let { search, category, status, authorId,  page = 1, limit = 10 } = filterDto;
 
   // Convertir les valeurs en nombre si jamais elles sont des chaînes
   page = Number(page);
   limit = Number(limit);
   const skip = (page - 1) * limit;
 
+  
   const where: any = {};
-  if (title) {
-    where.title = { contains: title, mode: 'insensitive' };
+
+  // if (category){
+  //   where.category
+  // }
+
+  if (search) {
+    where.title = { contains: search, mode: 'insensitive' };
   }
   if (category) {
-    where.category = category;
+    where.category = Array.isArray(category) ? {in: category} : category ;
   }
   if (status) {
     where.status = status;
@@ -74,7 +80,6 @@ export class ArticleService {
     },
   });
 }
-
 
 
   // Récupère un article par son ID.
@@ -129,7 +134,7 @@ export class ArticleService {
     return this.prisma.article.delete({ where: { id } });
   }
 
-    // Publie un article (change son statut à PUBLISHED et met à jour publishedAt).
+ // Publie un article (change son statut à PUBLISHED et met à jour publishedAt).
    
   async publish(id: string, userId: string, userRole: UserRole): Promise<Article> {
     const existingArticle = await this.prisma.article.findUnique({ where: { id } });
@@ -172,6 +177,26 @@ export class ArticleService {
       },
     });
   }
+
+  // Mettre à jour l'image d'un image 
+
+  async updateArticleImage(articleId: string, imageUrl: string): Promise<Article> {
+  const article = await this.prisma.article.findUnique({
+    where: { id: articleId },
+  });
+
+  if (!article) {
+    throw new NotFoundException(`Produit avec l'ID ${articleId} non trouvé`);
+  }
+
+  return this.prisma.product.update({
+    where: { id: articleId },
+    data: {
+      imageUrl: imageUrl
+    }
+  });
+}
+
 
 //   async markAsRead(userId: string, articleId: string): Promise<void> {
 //   await this.prisma.userArticleRead.upsert({

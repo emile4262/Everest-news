@@ -1,6 +1,6 @@
 // src/articles/dto/create-article.dto.ts
-import { IsString, IsNotEmpty, IsOptional, IsEnum, IsBoolean, IsUUID } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsNotEmpty, IsOptional, IsEnum, IsBoolean, IsUUID, IsArray } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ArticleCategory, ArticleStatus } from '@prisma/client'; // Assurez-vous que @prisma/client est correctement importé
 
 //  DTO pour la création d'un article.
@@ -69,6 +69,7 @@ export class CreateArticleDto {
 }
 
 import { PartialType } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 
 
 // DTO pour la mise à jour d'un article. 
@@ -82,23 +83,34 @@ export class UpdateArticleDto extends PartialType(CreateArticleDto) {
 //  DTO pour filtrer les articles lors de la recherche ou de la récupération.
 
 export class FilterArticleDto {
-  @ApiProperty({
-    description: 'Filtre les articles par titre (recherche partielle)',
-    required: false,
-    example: 'nouvelles',
-  })
+  // @ApiProperty({
+  //   description: 'Filtre les articles par titre (recherche partielle)',
+  //   required: false,
+  //   example: 'nouvelles',
+  // })
   @IsString()
   @IsOptional()
   title?: string;
 
-  @ApiProperty({
-    description: 'Filtre les articles par catégorie',
-    enum: ArticleCategory,
-    required: false,
-    example: ArticleCategory.PROJECT_NEWS,
-  })
-  @IsEnum(ArticleCategory)
-  @IsOptional()
+  @ApiPropertyOptional({
+     description: 'les différents catégories',
+     example: ['PROJECT_NEWS', 'TUTORIAL', 'OPINION', 'REVIEW', 'HR_HOLIDAYS'],
+     type: 'array',
+     items: {
+       type: 'string',
+     },
+   })
+   @IsOptional()
+   @Transform(({ value }) => {
+     if (typeof value === 'string') {
+       try {
+         return JSON.parse(value);
+       } catch (e) {
+         return value.split(',').map((item) => item.trim());
+       }
+     }
+     return value;
+   })
   category?: ArticleCategory;
 
 
@@ -122,25 +134,30 @@ export class FilterArticleDto {
 
 
 
-  @ApiProperty({
-    description: 'Filtre les articles par statut',
-    enum: ArticleStatus,
-    required: false,
-    example: ArticleStatus.PUBLISHED,
-  })
+  // @ApiProperty({
+  //   description: 'Filtre les articles par statut',
+  //   enum: ArticleStatus,
+  //   required: false,
+  //   example: ArticleStatus.PUBLISHED,
+  // })
   @IsEnum(ArticleStatus)
   @IsOptional()
   status?: ArticleStatus;
 
-  @ApiProperty({
-    description: 'ID de l\'auteur pour filtrer les articles écrits par un utilisateur spécifique',
-    required: false,
-    example: 'clw67v2440000w4n23m9d4g5j', 
-  })
+  // @ApiProperty({
+  //   description: 'ID de l\'auteur pour filtrer les articles écrits par un utilisateur spécifique',
+  //   required: false,
+  //   example: 'clw67v2440000w4n23m9d4g5j', 
+  // })
   @IsString()
   @IsUUID()
   @IsOptional()
   authorId?: string;
+
+  @IsOptional()
+  @Transform(({ value }) => value === 'true')
+  @IsBoolean()
+  isActive?: boolean;
 
   @ApiProperty({
     description: 'Numéro de page pour la pagination (commence à 1)',
@@ -159,4 +176,9 @@ export class FilterArticleDto {
   })
   @IsOptional()
   limit?: number;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsArray()
+  search?: string;
 }
