@@ -1,9 +1,11 @@
 import { Injectable, NotFoundException, ConflictException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
-import { CreateExternalContentDto,  ExternalContentQueryDto, ExternalContentResponseDto,  ExternalContentType,  PaginatedExternalContentDto } from './dto/create-external-content.dto';
+import { CreateExternalContentDto, ExternalContentResponseDto,  PaginatedExternalContentDto } from './dto/create-external-content.dto';
 import {  Prisma } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
 import { UpdateExternalContentDto } from './dto/update-external-content.dto';
+import { ExternalContentQueryDto } from './dto/External-content-query.dto';
+import { ExternalContentEnum } from 'src/common/enums/external-content.enum';
 
 @Injectable()
 export class ExternalContentService {
@@ -74,77 +76,78 @@ export class ExternalContentService {
     }
   }
 
-  async findAll(query: ExternalContentQueryDto): Promise<PaginatedExternalContentDto> {
+async findAll(query: ExternalContentQueryDto): Promise<PaginatedExternalContentDto> {
   const {
     page = 1,
     limit = 10,
     search,
-    type,
-    // topicId,
-    // source,
+    externalContent, 
     isActive,
-    sortBy ,
-    sortOrder 
+    sortBy = 'createdAt',
+    sortOrder = 'desc',
   } = query;
 
- //  Conversion en nombre pour éviter les erreurs Prisma (type string → number)
-  const currentPage = Number(page) || 1;
-  const currentLimit = Number(limit) || 10;
+  const currentPage = Number(page);
+  const currentLimit = Number(limit);
   const skip = (currentPage - 1) * currentLimit;
 
-  const where: any = {}
-  if (type) {
-    where.type = Array.isArray(type) ? { in: type} :type;
+  const where: any = {};
+
+  if (externalContent) {
+    where.type = Array.isArray(externalContent)
+      ? { in: externalContent }
+      : externalContent;
   }
 
   if (isActive !== undefined) {
-  // Convertir 'true' (string) ou true (boolean) en boolean
-  where.isActive = String(isActive) === 'true';
-}
+    where.isActive = String(isActive) === 'true';
+  }
 
-    if (search) {
-     where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { author: { contains: search, mode: 'insensitive' } },
-        { summary: { contains: search, mode: 'insensitive' } }
-      ];
-    }
+  if (search) {
+    where.OR = [
+      { title: { contains: search, mode: 'insensitive' } },
+      { author: { contains: search, mode: 'insensitive' } },
+      { summary: { contains: search, mode: 'insensitive' } },
+    ];
+  }
 
-   // Préparation du tri
   const orderBy: any = {};
   if (sortBy) {
-  orderBy[sortBy] = sortOrder;
+    orderBy[sortBy] = sortOrder === 'asc' ? 'asc' : 'desc';
   }
-  //  Exécution parallèle des requêtes
-  const[ExternalContent, total] = await Promise.all([ 
-     this.prisma.ExternalContent.findMany({
-      where,
-      skip,
-      take: currentLimit, 
-      orderBy,
-      select:{ 
-        id: true,
-        title: true,
-        author: true,
-        summary: true,
-        
-      },
-       }),
-       this.prisma.externalContent.count({ where})
-       ])
 
-      const totalPages = Math.ceil(total / currentLimit);
+  const [ExternalContent, total] = await Promise.all([
+  this.prisma.externalContent.findMany({
+    where: {
+      isActive: true,
+      OR: [
+        { title: { contains: search, mode: "insensitive" } },
+        { author: { contains: search, mode: "insensitive" } },
+        { summary: { contains: search, mode: "insensitive" } },
+      ],
+    },
+    orderBy: {
+      scrapedAt: "desc",
+    },
+  }),
+  this.prisma.externalContent.count({ where: { isActive: true } }),
+]);
 
-   return {
-    data: ExternalContent,
-    total,
-    totalPages,
-    page: currentPage,
-    limit: currentLimit,
-    hasNext: currentPage < totalPages,
-    hasPrevious: currentPage > 1,
-  }; 
-  }
+console.log(ExternalContent, total)
+  const totalPages = Math.ceil(total / currentLimit);
+
+ 
+return {
+  data: ExternalContent,
+  total,
+  page: currentPage,
+  limit: currentLimit,
+  totalPages,
+  hasNext: currentPage < totalPages,
+  hasPrevious: currentPage > 1,
+};
+
+}
 
   
 
@@ -233,12 +236,12 @@ async update(dto: UpdateExternalContentDto): Promise<ExternalContentResponseDto>
   }
 
   async findByTopic(topicId: string, query?: Partial<ExternalContentQueryDto>): Promise<ExternalContentResponseDto[]> {
-    const { type, isActive = true, sortBy = 'scrapedAt', sortOrder = 'desc' } = query || {};
+    const { externalContent, isActive = true, sortBy = 'scrapedAt', sortOrder = 'desc' } = query || {};
 
     const where: any = {
       topicId,
       isActive,
-      ...(type && { type }),
+      ...(externalContent && { externalContent }),
     };
 
     const contents = await this.prisma.externalContent.findMany({
@@ -292,7 +295,7 @@ async update(dto: UpdateExternalContentDto): Promise<ExternalContentResponseDto>
     return contents.map(content => this.transformToDto(content));
   }
 
-  async findByType(type: ExternalContentType): Promise<ExternalContentResponseDto[]> {
+  async findByType(type: ExternalContentEnum): Promise<ExternalContentResponseDto[]> {
     const contents = await this.prisma.externalContent.findMany({
       where: {
         type,
@@ -348,7 +351,7 @@ async update(dto: UpdateExternalContentDto): Promise<ExternalContentResponseDto>
 
   async getStats(): Promise<{
     total: number;
-    byType: Record<ExternalContentType, number>;
+    byType: Record<ExternalContentEnum, number>;
     bySource: Record<string, number>;
     active: number;
     inactive: number;
@@ -372,7 +375,7 @@ async update(dto: UpdateExternalContentDto): Promise<ExternalContentResponseDto>
       byType: byType.reduce((acc, item) => {
         acc[item.type] = item._count;
         return acc;
-      }, {} as Record<ExternalContentType, number>),
+      }, {} as Record<ExternalContentEnum, number>),
       bySource: bySource.reduce((acc, item) => {
         acc[item.source] = item._count;
         return acc;

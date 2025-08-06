@@ -25,15 +25,15 @@ import {
 import { ExternalContentService } from './external-content.service';
 import {
   CreateExternalContentDto,
-  ExternalContentQueryDto,
   ExternalContentResponseDto,
-  ExternalContentType,
 } from './dto/create-external-content.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { UserRole } from 'generated/prisma';
 import { Roles } from 'src/auth/public.decorateur';
 import { UpdateExternalContentDto } from './dto/update-external-content.dto';
+import { ExternalContentQueryDto } from './dto/External-content-query.dto';
+import { ExternalContentEnum } from 'src/common/enums/external-content.enum';
 
 @ApiTags('External Content')
 @ApiBearerAuth()
@@ -62,23 +62,23 @@ export class ExternalContentController {
   @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Récupérer tous les contenus externes avec pagination et filtres' })
-  @ApiResponse({
-    status: 200,
-    description: 'Liste des contenus externes',
-    schema: {
-      type: 'object',
-      properties: {
-        data: {
-          type: 'array',
-          items: { $ref: '#/components/schemas/ExternalContentResponseDto' },
-        },
-        total: { type: 'number' },
-        page: { type: 'number' },
-        limit: { type: 'number' },
-        totalPages: { type: 'number' },
-      },
-    },
-  })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Liste des contenus externes',
+  //   schema: {
+  //     type: 'object',
+  //     properties: {
+  //       data: {
+  //         type: 'array',
+  //         items: { $ref: '#/components/schemas/ExternalContentResponseDto' },
+  //       },
+  //       total: { type: 'number' },
+  //       page: { type: 'number' },
+  //       limit: { type: 'number' },
+  //       totalPages: { type: 'number' },
+  //     },
+  //   },
+  // })
   @ApiQuery({ name: 'page', required: false, type: Number, description: 'Numéro de page' })
   @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Nombre d\'éléments par page' })
   @ApiQuery({ name: 'search', required: false, type: String, description: 'Recherche par titre, auteur ou résumé' })
@@ -153,13 +153,13 @@ export class ExternalContentController {
   @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @ApiOperation({ summary: 'Récupérer les contenus externes par type' })
-  @ApiParam({ name: 'type', enum: ExternalContentType, description: 'Type de contenu' })
+  @ApiParam({ name: 'type', enum: ExternalContentEnum, description: 'Type de contenu' })
   @ApiResponse({
     status: 200,
     description: 'Liste des contenus externes du type',
     type: [ExternalContentResponseDto],
   })
-  findByType(@Param('type') type: ExternalContentType): Promise<ExternalContentResponseDto[]> {
+  findByType(@Param('type') type: ExternalContentEnum): Promise<ExternalContentResponseDto[]> {
     return this.externalContentService.findByType(type);
   }
 
