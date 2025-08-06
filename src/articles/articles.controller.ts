@@ -23,10 +23,11 @@ import { Request } from 'express';
 import { ArticleService } from './articles.service';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/public.decorateur';
-import { CreateArticleDto, FilterArticleDto, UpdateArticleDto } from './dto/create-article.dto';
+import { CreateArticleDto,  UpdateArticleDto } from './dto/create-article.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path';
 import { diskStorage } from 'multer';
+import { FilterArticleDto } from './dto/filter-article.dto';
 
 
 // Interface pour étendre l'objet Request d'Express avec l'utilisateur authentifié
@@ -219,7 +220,6 @@ export class ArticleController {
     if (!file) {
       throw new BadRequestException('Fichier non fourni');
     }
-    
     const imageUrl = `/uploads/article/${file.filename}`;
     
     await this.articleService.updateArticleImage(articleId, imageUrl);

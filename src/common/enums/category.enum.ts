@@ -1,0 +1,7 @@
+export enum CategoryEnum{
+    PROJECT_NEWS = 'PROJECT_NEWS',
+    TUTORIAL ='TUTORIAL',
+    OPINION ='OPINION', 
+    REVIEW='REVIEW', 
+    HR_HOLIDAYS='HR_HOLIDAYS'
+}

@@ -1,7 +1,6 @@
 import { IsString, IsUrl, IsOptional, IsEnum, IsBoolean, IsDateString, IsUUID } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ExternalContent } from '@prisma/client';
 
 export enum ExternalContentType {
   ARTICLE = 'ARTICLE',

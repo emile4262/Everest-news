@@ -145,7 +145,7 @@ export class UsersQueryDto {
   limit?: number = 10;
 
   @ApiPropertyOptional({
-    description: 'Début du numéro de téléphone',
+    description: 'le role des utilisateurs',
     example: ['ADMIN', 'EMPLOYEE', 'MANAGER'],
     type: 'array',
     items: {

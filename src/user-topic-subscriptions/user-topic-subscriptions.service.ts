@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CreateUserTopicSubscriptionDto, PaginatedUserTopicSubscriptionsDto, UserTopicSubscriptionQueryDto } from './dto/create-user-topic-subscription.dto';
 import { Prisma } from '@prisma/client';
 

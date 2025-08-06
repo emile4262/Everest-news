@@ -2,13 +2,12 @@ import { Injectable, NotFoundException, ConflictException, BadRequestException }
 import { CreateUserDto, UsersQueryDto, ChangePasswordDto, UserResponseDto, PaginatedUsersDto, ResetPasswordDto, VerifyOtpDto  } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/common/prisma/prisma.service';
 import { User, UserRole } from 'generated/prisma';
 import { JwtService } from '@nestjs/jwt';
 import { randomInt } from 'crypto';
 import * as nodemailer from 'nodemailer';
 import { Article } from '@prisma/client';
-import { FilterArticleDto } from 'src/articles/dto/create-article.dto';
 
 
 @Injectable()

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ConflictException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
-import { CreateExternalContentDto,  ExternalContentQueryDto, ExternalContentResponseDto, ExternalContentType, PaginatedExternalContentDto } from './dto/create-external-content.dto';
+import { PrismaService } from '../common/prisma/prisma.service';
+import { CreateExternalContentDto,  ExternalContentQueryDto, ExternalContentResponseDto,  ExternalContentType,  PaginatedExternalContentDto } from './dto/create-external-content.dto';
 import {  Prisma } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
 import { UpdateExternalContentDto } from './dto/update-external-content.dto';

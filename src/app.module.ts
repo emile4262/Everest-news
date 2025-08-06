@@ -1,8 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
-import { PrismaModule } from './prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersController } from './users/users.controller';
 import { UsersService } from './users/users.service';
@@ -28,6 +25,7 @@ import { ScrapingModule } from './scraping/scraping.module';
 import { ScrapingService } from './scraping/scraping.service';
 import { ScrapingController } from './scraping/scraping.controller';
 import { ScheduleModule } from '@nestjs/schedule';
+import { PrismaModule } from './common/prisma/prisma.module';
 
 @Module({
   imports: [
@@ -48,8 +46,8 @@ import { ScheduleModule } from '@nestjs/schedule';
     ScrapingModule,
     PrismaModule,
      ],
-  controllers: [AppController, UsersController,TopicsController, UserTopicSubscriptionsController, TopicsController, ArticleController, ExternalContentController, ],
-  providers: [AppService, UsersService, JwtAuthGuard, TopicsService, UserTopicSubscriptionsService,ArticleService, ExternalContentService, 
+  controllers: [ UsersController,TopicsController, UserTopicSubscriptionsController, TopicsController, ArticleController, ExternalContentController, ],
+  providers: [ UsersService, JwtAuthGuard, TopicsService, UserTopicSubscriptionsService,ArticleService, ExternalContentService, 
     RolesGuard, ],
 })
 export class AppModule {}

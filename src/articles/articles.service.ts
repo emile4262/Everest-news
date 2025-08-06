@@ -1,8 +1,9 @@
 // src/articles/article.service.ts
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Article, ArticleStatus, UserRole } from '@prisma/client'; // Importez les modèles et enums de Prisma Client
-import { PrismaService } from 'src/prisma.service';
-import { CreateArticleDto, FilterArticleDto, UpdateArticleDto } from './dto/create-article.dto';
+import { PrismaService } from 'src/common/prisma/prisma.service';
+import { CreateArticleDto,  UpdateArticleDto } from './dto/create-article.dto';
+import { FilterArticleDto } from './dto/filter-article.dto';
 
 @Injectable()
 export class ArticleService {
@@ -189,10 +190,11 @@ export class ArticleService {
     throw new NotFoundException(`Produit avec l'ID ${articleId} non trouvé`);
   }
 
-  return this.prisma.product.update({
+
+  return this.prisma.article.update({
     where: { id: articleId },
     data: {
-      imageUrl: imageUrl
+      url: imageUrl
     }
   });
 }

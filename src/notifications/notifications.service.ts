@@ -1,6 +1,6 @@
 // src/notifications/notifications.service.ts
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../common/prisma/prisma.service';
 import { CreateNotificationDto, NotificationType } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { NotificationQueryDto } from './dto/create-notification.dto';
