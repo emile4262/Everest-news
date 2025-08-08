@@ -101,6 +101,7 @@ export class ArticleService {
   }
 
   // Met à jour un article existant.
+  private 
    
   async update(id: string, updateArticleDto: UpdateArticleDto, userId: string, userRole: UserRole): Promise<Article> {
     const existingArticle = await this.prisma.article.findUnique({ where: { id } });

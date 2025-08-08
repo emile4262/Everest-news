@@ -1,80 +1,25 @@
-import { IsString, IsUrl, IsOptional, IsEnum, IsBoolean, IsDateString, IsUUID } from 'class-validator';
-import { Transform } from 'class-transformer';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ExternalContentEnum } from 'src/common/enums/external-content.enum';
-import { ExternalContent } from '../entities/external-content.entity';
+// import { IsString, IsUrl, IsOptional, IsEnum, IsBoolean, IsDateString, IsUUID } from 'class-validator';
+// import { Transform } from 'class-transformer';
+// import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+// import { ExternalContentEnum } from 'src/common/enums/external-content.enum';
+// import { ExternalContent } from '../entities/external-content.entity';
 
-// export enum ExternalContentType {
-//   ARTICLE = 'ARTICLE',
-//   VIDEO = 'VIDEO',
-//   COURSE = 'COURSE',
-//   TUTORIAL = 'TUTORIAL'
-// }
+// // export enum ExternalContentType {
+// //   ARTICLE = 'ARTICLE',
+// //   VIDEO = 'VIDEO',
+// //   COURSE = 'COURSE',
+// //   TUTORIAL = 'TUTORIAL'
+// // }
 
-export class CreateExternalContentDto {
+// export class CreateExternalContentDto {
 
-  @ApiProperty({ description: 'Titre du contenu' })
-  @IsString()
-  title: string;
-
-  @ApiProperty({ description: 'URL du contenu' })
-  @IsUrl()
-  url: string;
-
-  @ApiPropertyOptional({ description: 'Résumé du contenu' })
-  @IsOptional()
-  @IsString()
-  summary?: string;
-
-  @ApiPropertyOptional({ description: 'Contenu complet' })
-  @IsOptional()
-  @IsString()
-  content: string;
-
-  @ApiPropertyOptional({ description: 'Auteur du contenu' })
-  @IsOptional()
-  @IsString()
-  author?: string;
-
-  @ApiProperty({ description: 'Source du contenu' })
-  @IsString()
-  source: string;
-
-  @ApiProperty({ enum: ExternalContentEnum, description: 'Type de contenu' })
-  @IsEnum(ExternalContentEnum)
-  type: ExternalContentEnum;
-
-  @ApiPropertyOptional({ description: 'Date de publication' })
-  @IsOptional()
-  @IsDateString()
-  publishedAt?: string;
-
-  @ApiProperty({ description: 'ID du topic associé' })
-  @IsString()
-  topicId: string;
-
-  @ApiPropertyOptional({ description: 'Statut actif', default: true })
-  @IsOptional()
-  @IsBoolean()
-  @Transform(({ value }) => value === 'true' || value === true)
-  isActive?: boolean = true;
-}
-
-// export class UpdateExternalContentDto {
-
-//   @ApiProperty({ description: 'ID du contenu externe' })
+//   @ApiProperty({ description: 'Titre du contenu' })
 //   @IsString()
-//   id: string;
+//   title: string;
 
-//   @ApiPropertyOptional({ description: 'Titre du contenu' })
-//   @IsOptional()
-//   @IsString()
-//   title?: string;
-
-//   @ApiPropertyOptional({ description: 'URL du contenu' })
-//   @IsOptional()
+//   @ApiProperty({ description: 'URL du contenu' })
 //   @IsUrl()
-//   url?: string;
+//   url: string;
 
 //   @ApiPropertyOptional({ description: 'Résumé du contenu' })
 //   @IsOptional()
@@ -91,178 +36,233 @@ export class CreateExternalContentDto {
 //   @IsString()
 //   author?: string;
 
-//   @ApiPropertyOptional({ description: 'Source du contenu' })
-//   @IsOptional()
+//   @ApiProperty({ description: 'Source du contenu' })
 //   @IsString()
-//   source?: string;
+//   source: string;
 
-//   @ApiPropertyOptional({ enum: ExternalContentType, description: 'Type de contenu' })
-//   @IsOptional()
-//   @IsEnum(ExternalContentType)
-//   type?: ExternalContentType;
+//   @ApiProperty({ enum: ExternalContentEnum, description: 'Type de contenu' })
+//   @IsEnum(ExternalContentEnum)
+//   type: ExternalContentEnum;
 
 //   @ApiPropertyOptional({ description: 'Date de publication' })
 //   @IsOptional()
 //   @IsDateString()
 //   publishedAt?: string;
 
-//   @ApiPropertyOptional({ description: 'ID du topic associé' })
-//   @IsOptional()
+//   @ApiProperty({ description: 'ID du topic associé' })
 //   @IsString()
-//   topicId?: string;
+//   topicId: string;
 
-//   @ApiPropertyOptional({ description: 'Statut actif' })
+//   @ApiPropertyOptional({ description: 'Statut actif', default: true })
 //   @IsOptional()
 //   @IsBoolean()
 //   @Transform(({ value }) => value === 'true' || value === true)
-//   isActive?: boolean;
+//   isActive?: boolean = true;
 // }
 
-export class ExternalContentResponseDto {
+// // export class UpdateExternalContentDto {
 
- data: ExternalContentResponseDto[];
-  @ApiProperty()
-  @IsString()
-  id: string;
+// //   @ApiProperty({ description: 'ID du contenu externe' })
+// //   @IsString()
+// //   id: string;
 
-  @ApiProperty()
-  title: string;
+// //   @ApiPropertyOptional({ description: 'Titre du contenu' })
+// //   @IsOptional()
+// //   @IsString()
+// //   title?: string;
 
-  @ApiProperty()
-  url: string;
+// //   @ApiPropertyOptional({ description: 'URL du contenu' })
+// //   @IsOptional()
+// //   @IsUrl()
+// //   url?: string;
 
-  @ApiProperty({ required: false })
-  summary: string | null;
+// //   @ApiPropertyOptional({ description: 'Résumé du contenu' })
+// //   @IsOptional()
+// //   @IsString()
+// //   summary?: string;
 
-  @ApiProperty({ required: false })
-  content: string;
+// //   @ApiPropertyOptional({ description: 'Contenu complet' })
+// //   @IsOptional()
+// //   @IsString()
+// //   content: string;
 
-  @ApiProperty({ required: false })
-  author?: string;
+// //   @ApiPropertyOptional({ description: 'Auteur du contenu' })
+// //   @IsOptional()
+// //   @IsString()
+// //   author?: string;
 
-  @ApiProperty()
-  source: string;
+// //   @ApiPropertyOptional({ description: 'Source du contenu' })
+// //   @IsOptional()
+// //   @IsString()
+// //   source?: string;
 
-  @ApiProperty({ enum: ExternalContentEnum })
-  type: ExternalContentEnum;
+// //   @ApiPropertyOptional({ enum: ExternalContentType, description: 'Type de contenu' })
+// //   @IsOptional()
+// //   @IsEnum(ExternalContentType)
+// //   type?: ExternalContentType;
 
-  @ApiProperty({ required: false })
-  publishedAt?: Date;
+// //   @ApiPropertyOptional({ description: 'Date de publication' })
+// //   @IsOptional()
+// //   @IsDateString()
+// //   publishedAt?: string;
 
-  @ApiProperty()
-  scrapedAt: Date;
+// //   @ApiPropertyOptional({ description: 'ID du topic associé' })
+// //   @IsOptional()
+// //   @IsString()
+// //   topicId?: string;
 
-  @ApiProperty()
-  isActive: boolean;
+// //   @ApiPropertyOptional({ description: 'Statut actif' })
+// //   @IsOptional()
+// //   @IsBoolean()
+// //   @Transform(({ value }) => value === 'true' || value === true)
+// //   isActive?: boolean;
+// // }
 
-  @ApiProperty()
-  topicId: string;
+// export class ExternalContentResponseDto {
 
-  @ApiProperty({ required: false })
-  @IsString()
-  topic?: {
-    id: string;
-    name: string;
-  };
+//  data: ExternalContentResponseDto[];
+//   @ApiProperty()
+//   @IsString()
+//   id: string;
+
+//   @ApiProperty()
+//   title: string;
+
+//   @ApiProperty()
+//   url: string;
 
 //   @ApiProperty({ required: false })
-//   @IsUUID()
+//   summary: string | null;
 
-//   views?: {
+//   @ApiProperty({ required: false })
+//   content: string;
+
+//   @ApiProperty({ required: false })
+//   author?: string;
+
+//   @ApiProperty()
+//   source: string;
+
+//   @ApiProperty({ enum: ExternalContentEnum })
+//   type: ExternalContentEnum;
+
+//   @ApiProperty({ required: false })
+//   publishedAt?: Date;
+
+//   @ApiProperty()
+//   scrapedAt: Date;
+
+//   @ApiProperty()
+//   isActive: boolean;
+
+//   @ApiProperty()
+//   topicId: string;
+
+//   @ApiProperty({ required: false })
+//   @IsString()
+//   topic?: {
 //     id: string;
-//     viewedAt: Date;
-//     userId: string;
-//   }[];
+//     name: string;
+//   };
 
-  @ApiProperty({ required: false })
-  viewsCount?: number;
-}
+// //   @ApiProperty({ required: false })
+// //   @IsUUID()
 
-// export class ExternalContentQueryDto {
+// //   views?: {
+// //     id: string;
+// //     viewedAt: Date;
+// //     userId: string;
+// //   }[];
 
-//   @ApiPropertyOptional({ description: 'Recherche par titre ou auteur' })
-//   @IsOptional()
-//   @IsString()
-//   search?: string;
-
-//   @ApiPropertyOptional({ enum: ExternalContentType, description: 'Filtrer par type', 
-//     example: ['ARTICLE', 'VIDEO', 'COURSE', 'TUTORIAL'],
-//     type: 'array',
-//     items: {
-//       type: 'string',
-//     },
-//   })
-//   @IsOptional()
-//   @Transform(({ value }) => {
-//     if (typeof value === 'string') {
-//       try {
-//         return JSON.parse(value);
-//       } catch (e) {
-//         return value.split(',').map((item) => item.trim());
-//       }
-//     }
-//     return value;
-//   })
-//   type?: ExternalContentType[];
-
-//   // @ApiPropertyOptional({ description: 'Filtrer par topic' })
-//   @IsOptional()
-//   @IsString()
-//   topicId?: string;
-
-//   @ApiPropertyOptional({ description: 'Filtrer par source' })
-//   @IsOptional()
-//   @IsString()
-//   source?: string;
-
-//   @ApiPropertyOptional({ description: 'Filtrer par statut actif', default: true })
-//   @IsOptional()
-//   @IsBoolean()
-//   @Transform(({ value }) => value === 'true' || value === true)
-//   isActive?: boolean;
-
-//   // @ApiPropertyOptional({ description: 'Page', default: 1 })
-//   @IsOptional()
-//   @Transform(({ value }) => parseInt(value))
-//   page?: number = 1;
-
-//   // @ApiPropertyOptional({ description: 'Limite par page', default: 10 })
-//   @IsOptional()
-//   @Transform(({ value }) => parseInt(value))
-//   limit?: number = 10;
-
-//   @ApiPropertyOptional({ description: 'Trier par', enum: ['scrapedAt', 'publishedAt', 'title'] })
-//   @IsOptional()
-//   @IsString()
-//   sortBy?: 'scrapedAt' | 'publishedAt' | 'title' = 'scrapedAt';
-
-//   @ApiPropertyOptional({ description: 'Ordre de tri', enum: ['asc', 'desc'] })
-//   @IsOptional()
-//   @IsString()
-//   sortOrder?: 'asc' | 'desc' = 'desc';
+//   @ApiProperty({ required: false })
+//   viewsCount?: number;
 // }
 
-export class PaginatedExternalContentDto {
+// // export class ExternalContentQueryDto {
 
-  @ApiProperty()
-  data: ExternalContent[];
+// //   @ApiPropertyOptional({ description: 'Recherche par titre ou auteur' })
+// //   @IsOptional()
+// //   @IsString()
+// //   search?: string;
 
-  @ApiProperty({ example: 100 })
-  total: number;
+// //   @ApiPropertyOptional({ enum: ExternalContentType, description: 'Filtrer par type', 
+// //     example: ['ARTICLE', 'VIDEO', 'COURSE', 'TUTORIAL'],
+// //     type: 'array',
+// //     items: {
+// //       type: 'string',
+// //     },
+// //   })
+// //   @IsOptional()
+// //   @Transform(({ value }) => {
+// //     if (typeof value === 'string') {
+// //       try {
+// //         return JSON.parse(value);
+// //       } catch (e) {
+// //         return value.split(',').map((item) => item.trim());
+// //       }
+// //     }
+// //     return value;
+// //   })
+// //   type?: ExternalContentType[];
 
-  @ApiProperty({ example: 1 })
-  page: number;
+// //   // @ApiPropertyOptional({ description: 'Filtrer par topic' })
+// //   @IsOptional()
+// //   @IsString()
+// //   topicId?: string;
 
-  @ApiProperty({ example: 10 })
-  limit: number;
+// //   @ApiPropertyOptional({ description: 'Filtrer par source' })
+// //   @IsOptional()
+// //   @IsString()
+// //   source?: string;
 
-  @ApiProperty({ example: 10 })
-  totalPages: number;
+// //   @ApiPropertyOptional({ description: 'Filtrer par statut actif', default: true })
+// //   @IsOptional()
+// //   @IsBoolean()
+// //   @Transform(({ value }) => value === 'true' || value === true)
+// //   isActive?: boolean;
 
-  @ApiProperty({ example: true })
-  hasNext: boolean;
+// //   // @ApiPropertyOptional({ description: 'Page', default: 1 })
+// //   @IsOptional()
+// //   @Transform(({ value }) => parseInt(value))
+// //   page?: number = 1;
 
-  @ApiProperty({ example: false })
-  hasPrevious: boolean;
+// //   // @ApiPropertyOptional({ description: 'Limite par page', default: 10 })
+// //   @IsOptional()
+// //   @Transform(({ value }) => parseInt(value))
+// //   limit?: number = 10;
 
-}
+// //   @ApiPropertyOptional({ description: 'Trier par', enum: ['scrapedAt', 'publishedAt', 'title'] })
+// //   @IsOptional()
+// //   @IsString()
+// //   sortBy?: 'scrapedAt' | 'publishedAt' | 'title' = 'scrapedAt';
+
+// //   @ApiPropertyOptional({ description: 'Ordre de tri', enum: ['asc', 'desc'] })
+// //   @IsOptional()
+// //   @IsString()
+// //   sortOrder?: 'asc' | 'desc' = 'desc';
+// // }
+
+// export class PaginatedExternalContentDto {
+
+//   @ApiProperty()
+//   data: ExternalContent[];
+
+//   @ApiProperty({ example: 100 })
+//   total: number;
+
+//   @ApiProperty({ example: 1 })
+//   page: number;
+
+//   @ApiProperty({ example: 10 })
+//   limit: number;
+
+//   @ApiProperty({ example: 10 })
+//   totalPages: number;
+
+//   @ApiProperty({ example: true })
+//   hasNext: boolean;
+
+//   @ApiProperty({ example: false })
+//   hasPrevious: boolean;
+
+// }

@@ -18,9 +18,6 @@ import { ArticleController } from './articles/articles.controller';
 // import { ScrapingSourceModule } from './scraping-source/scraping-source.module';
 // import { ScrapingLogModule } from './scraping-log/scraping-log.module';
 import { NotificationsModule } from './notifications/notifications.module';
-import { ExternalContentModule } from './external-content/external-content.module';
-import { ExternalContentController } from './external-content/external-content.controller';
-import { ExternalContentService } from './external-content/external-content.service';
 import { ScrapingModule } from './scraping/scraping.module';
 import { ScrapingService } from './scraping/scraping.service';
 import { ScrapingController } from './scraping/scraping.controller';
@@ -42,12 +39,11 @@ import { PrismaModule } from './common/prisma/prisma.module';
     // ScrapingSourceModule,
     // ScrapingLogModule,
     NotificationsModule,
-    ExternalContentModule,
     ScrapingModule,
     PrismaModule,
      ],
-  controllers: [ UsersController,TopicsController, UserTopicSubscriptionsController, TopicsController, ArticleController, ExternalContentController, ],
-  providers: [ UsersService, JwtAuthGuard, TopicsService, UserTopicSubscriptionsService,ArticleService, ExternalContentService, 
+  controllers: [ UsersController,TopicsController, UserTopicSubscriptionsController, TopicsController, ArticleController,  ],
+  providers: [ UsersService, JwtAuthGuard, TopicsService, UserTopicSubscriptionsService,ArticleService,  
     RolesGuard, ],
 })
 export class AppModule {}

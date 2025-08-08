@@ -1,17 +1,17 @@
-import { IsString, IsNotEmpty, IsOptional, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsNumber, IsUUID, IsArray, ValidateNested } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'stream';
+import { Type } from 'class-transformer';
 
 export class CreateUserTopicSubscriptionDto {
-  @ApiProperty({ description: 'ID de l\'utilisateur' })
-  @IsString()
-  @IsNotEmpty()
-  userId: string;
-
-  @ApiProperty({ description: 'ID du topic' })
-  @IsString()
-  @IsNotEmpty()
-  topicId: string;
+  @ApiProperty({
+    description: 'ID du topic à souscrire',
+    example: 'cm5abc123def456ghi789jkl',
+    format: 'uuid'
+  })
+  @IsUUID(undefined, { message: 'topicId doit être un UUID valide' })
+  @IsNotEmpty({ message: 'topicId ne peut pas être vide' })
+  topicId: string[];
 }
 
 // user-topic-subscription-response.dto.ts
@@ -118,4 +118,19 @@ export class PaginatedUserTopicSubscriptionsDto {
 
   @ApiProperty({ description: 'Indique s\'il y a une page précédente' })
   hasPrevious: boolean;
+}
+
+export class CreateMultipleSubscriptionsDto {
+  @ApiProperty({
+    description: 'Liste des topics à souscrire',
+    type: [CreateUserTopicSubscriptionDto],
+    example: [
+      { topicId: 'cm5abc123def456ghi789jkl' },
+      { topicId: 'cm5def456ghi789jklabc123' }
+    ]
+  })
+  @IsArray({ message: 'subscriptions doit être un tableau' })
+  @ValidateNested({ each: true })
+  @Type(() => CreateUserTopicSubscriptionDto)
+  subscriptions: CreateUserTopicSubscriptionDto[];
 }

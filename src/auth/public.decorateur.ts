@@ -1,5 +1,6 @@
 import { createParamDecorator, ExecutionContext, SetMetadata } from '@nestjs/common';
 import { UserRole } from 'generated/prisma';
+import { UserResponseDto } from 'src/users/dto/create-user.dto';
 
 export const IS_PUBLIC_KEY = 'isPublic';
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);

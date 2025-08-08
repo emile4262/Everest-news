@@ -9,14 +9,24 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  ParseArrayPipe,
+  Req,
+  BadRequestException,
+  Put,
+  ValidationPipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiParam, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { UserTopicSubscriptionsService } from './user-topic-subscriptions.service';
-import { CreateUserTopicSubscriptionDto, PaginatedUserTopicSubscriptionsDto, UserTopicSubscriptionQueryDto, UserTopicSubscriptionWithRelationsDto } from './dto/create-user-topic-subscription.dto';
+import {  CreateUserTopicSubscriptionDto, PaginatedUserTopicSubscriptionsDto, UserTopicSubscriptionQueryDto, UserTopicSubscriptionWithRelationsDto } from './dto/create-user-topic-subscription.dto';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { JwtAuthGuard } from 'src/auth/jwt-auth/jwt-auth.guard';
 import { UserRole } from 'generated/prisma';
 import { Roles } from 'src/auth/public.decorateur';
+import { Request } from 'express';
+import {  TopicSelectionResponseDto } from './dto/topic-selection-response.dto';
+import { GetUser } from 'src/common/decorateur-getUser';
+import { UpdateSubscriptionsDto } from './dto/update-user-topic-subscription.dto';
+
 
 @ApiTags('user-topic-subscriptions')
 @UseGuards(JwtAuthGuard, RolesGuard) 
@@ -27,147 +37,127 @@ export class UserTopicSubscriptionsController {
 
   // Créer une nouvelle subscription
   
+  
   @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Créer une nouvelle subscription' })
-  @ApiResponse({
-    status: 201,
-    description: 'Subscription créée avec succès',
-    type: UserTopicSubscriptionWithRelationsDto,
+  @Get('topics')
+  @ApiOperation({ 
+    summary: 'Récupérer tous les topics avec statut d\'abonnement',
+    description: 'Retourne tous les topics actifs avec l\'indication si l\'utilisateur y est abonné ou non'
   })
-  @ApiResponse({ status: 404, description: 'Utilisateur ou topic non trouvé' })
-  @ApiResponse({ status: 409, description: 'Subscription déjà existante' })
-  create(@Body() createUserTopicSubscriptionDto: CreateUserTopicSubscriptionDto) {
-    return this.userTopicSubscriptionsService.create(createUserTopicSubscriptionDto);
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Topics récupérés avec succès',
+    type: TopicSelectionResponseDto 
+  })
+  async getTopicsForSelection(
+    @GetUser() user: any
+  ): Promise<TopicSelectionResponseDto> {
+    return this.userTopicSubscriptionsService.getTopicsWithSubscriptionStatus(user.id);
   }
 
-  // Récupérer toutes les subscriptions avec pagination et filtres
 
   @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
   @Get()
-  @ApiOperation({ summary: 'Obtenir toutes les subscriptions avec pagination' })
-  @ApiResponse({
-    status: 200,
-    description: 'Liste des subscriptions récupérée avec succès',
-    type: PaginatedUserTopicSubscriptionsDto,
+  @ApiOperation({ summary: 'Récupérer les abonnements actuels de l\'utilisateur' })
+  @ApiResponse({ status: 200, description: 'Abonnements récupérés avec succès' })
+  async getUserSubscriptions(@GetUser() user: any) {
+    return this.userTopicSubscriptionsService.getUserSubscriptions(user.id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
+  @Post()
+  @ApiOperation({ 
+    summary: 'Ajouter des abonnements topics',
+    description: 'Ajoute de nouveaux abonnements en gardant les existants. Utilise skipDuplicates pour éviter les doublons.'
   })
-  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
-  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
-  @ApiQuery({ name: 'userId', required: false, type: String })
-  @ApiQuery({ name: 'topicId', required: false, type: String })
-  @ApiQuery({ name: 'sortBy', required: false, type: String, example: 'createdAt' })
-  @ApiQuery({ name: 'sortOrder', required: false, enum: ['asc', 'desc'] })
-  async findAll(@Query() query: UserTopicSubscriptionQueryDto): Promise<PaginatedUserTopicSubscriptionsDto> {
-    return this.userTopicSubscriptionsService.findAll(query);
-  }
-
-  // Récupérer une subscription 
-  @UseGuards(JwtAuthGuard, RolesGuard) 
-  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
-  @Get('stats')
-  @ApiOperation({ summary: 'Obtenir les statistiques des subscriptions' })
-  @ApiResponse({
-    status: 200,
-    description: 'Statistiques récupérées avec succès',
+  @ApiBody({
+    description: 'Liste des topics à souscrire',
+    type: [CreateUserTopicSubscriptionDto],
+    examples: {
+      'Exemple simple': {
+        value: [
+          { topicId: 'topicId1' },
+          { topicId: 'topicId2' },
+          { topicId: 'topicId3' }
+        ]
+      }
+    }
   })
-  getStats() {
-    return this.userTopicSubscriptionsService.getSubscriptionStats();
+  @ApiResponse({ status: 201, description: 'Abonnements créés avec succès' })
+  @ApiResponse({ status: 400, description: 'Données invalides' })
+  @ApiResponse({ status: 404, description: 'Utilisateur ou topics non trouvés' })
+  async addSubscriptions(
+    @Body(new ValidationPipe({ transform: true })) subscriptions: CreateUserTopicSubscriptionDto[],
+    @GetUser() user: any
+  ) {
+    console.log('Données reçues dans le controller:', subscriptions);
+    return this.userTopicSubscriptionsService.createAddTopicsToUser(subscriptions, user.id);
   }
 
-  // Récupérer les subscriptions d'un utilisateur
 
   @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
-  @Get('user/:userId')
-  @ApiOperation({ summary: 'Obtenir les subscriptions d\'un utilisateur' })
-  @ApiParam({ name: 'userId', description: 'ID de l\'utilisateur' })
-  @ApiResponse({
-    status: 200,
-    description: 'Subscriptions de l\'utilisateur récupérées avec succès',
+  @Put()
+  @ApiOperation({ 
+    summary: 'Remplacer tous les abonnements',
+    description: 'Supprime tous les abonnements actuels et crée les nouveaux'
   })
-  getUserSubscriptions(@Param('userId') userId: string) {
-    return this.userTopicSubscriptionsService.getUserSubscriptions(userId);
-  }
-
-  // Vérifier si un utilisateur est abonné à un topic
-
-  @UseGuards(JwtAuthGuard, RolesGuard) 
-  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
-  @Get('topic/:topicId')
-  @ApiOperation({ summary: 'Obtenir les subscriptions d\'un topic' })
-  @ApiParam({ name: 'topicId', description: 'ID du topic' })
-  @ApiResponse({
-    status: 200,
-    description: 'Subscriptions du topic récupérées avec succès',
+  @ApiBody({
+    type: UpdateSubscriptionsDto,
+    examples: {
+      'Remplacer abonnements': {
+        value: {
+          topicIds: ['topicId']
+        }
+      }
+    }
   })
-  getTopicSubscriptions(@Param('topicId') topicId: string) {
-    return this.userTopicSubscriptionsService.getTopicSubscriptions(topicId);
+  @ApiResponse({ status: 200, description: 'Abonnements mis à jour avec succès' })
+  async updateSubscriptions(
+    @Body(new ValidationPipe()) body: UpdateSubscriptionsDto,
+    @GetUser() user: any
+  ) {
+    return this.userTopicSubscriptionsService.updateUserSubscriptions(
+      body.topicIds,
+      user.id
+    );
   }
-
-  // Vérifier si un utilisateur est abonné à un topic
 
   @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
-  @Get('user/:userId/topic/:topicId')
-  @ApiOperation({ summary: 'Vérifier si un utilisateur est abonné à un topic' })
-  @ApiParam({ name: 'userId', description: 'ID de l\'utilisateur' })
-  @ApiParam({ name: 'topicId', description: 'ID du topic' })
-  @ApiResponse({
-    status: 200,
-    description: 'Subscription trouvée',
-    type: UserTopicSubscriptionWithRelationsDto,
+  @Delete()
+  @ApiOperation({ summary: 'Supprimer des abonnements spécifiques' })
+  @ApiBody({
+    type: UpdateSubscriptionsDto,
+    examples: {
+      'Supprimer abonnements': {
+        value: {
+          topicIds: ['topicId']
+        }
+      }
+    }
   })
-  @ApiResponse({ status: 404, description: 'Subscription non trouvée' })
-  findByUserAndTopic(@Param('userId') userId: string, @Param('topicId') topicId: string) {
-    return this.userTopicSubscriptionsService.findByUserAndTopic(userId, topicId);
+  @ApiResponse({ status: 200, description: 'Abonnements supprimés avec succès' })
+  async removeSubscriptions(
+    @Body(new ValidationPipe()) body: UpdateSubscriptionsDto,
+    @GetUser() user: any
+  ) {
+    return this.userTopicSubscriptionsService.removeSubscriptions(
+      body.topicIds,
+      user.id
+    );
   }
 
-  // Récupérer une subscription par ID
-
-  @UseGuards(JwtAuthGuard, RolesGuard) 
-  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
-  @Get(':id')
-  @ApiOperation({ summary: 'Obtenir une subscription par ID' })
-  @ApiParam({ name: 'id', description: 'ID de la subscription' })
-  @ApiResponse({
-    status: 200,
-    description: 'Subscription récupérée avec succès',
-    type: UserTopicSubscriptionWithRelationsDto,
-  })
-  @ApiResponse({ status: 404, description: 'Subscription non trouvée' })
-  findOne(@Param('id') id: string) {
-    return this.userTopicSubscriptionsService.findOne(id);
-  }
-
-  // Supprimer une subscription par ID
-
-  @UseGuards(JwtAuthGuard, RolesGuard) 
-  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Supprimer une subscription par ID' })
-  @ApiParam({ name: 'id', description: 'ID de la subscription' })
-  @ApiResponse({ status: 204, description: 'Subscription supprimée avec succès' })
-  @ApiResponse({ status: 404, description: 'Subscription non trouvée' })
-  remove(@Param('id') id: string) {
-    return this.userTopicSubscriptionsService.remove(id);
-  }
-
-  // Supprimer une subscription par utilisateur et topic
-
-  @UseGuards(JwtAuthGuard, RolesGuard) 
-  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER)
-  @Delete('user/:userId/topic/:topicId')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Supprimer une subscription par utilisateur et topic' })
-  @ApiParam({ name: 'userId', description: 'ID de l\'utilisateur' })
-  @ApiParam({ name: 'topicId', description: 'ID du topic' })
-  @ApiResponse({ status: 204, description: 'Subscription supprimée avec succès' })
-  @ApiResponse({ status: 404, description: 'Subscription non trouvée' })
-  removeByUserAndTopic(@Param('userId') userId: string, @Param('topicId') topicId: string) {
-    return this.userTopicSubscriptionsService.removeByUserAndTopic(userId, topicId);
-  }
+  // // Route de développement pour créer des topics de test
+  // @Post('dev/create-test-topics')
+  // @ApiOperation({ 
+  //   summary: '[DEV] Créer des topics de test',
+  //   description: 'Route de développement pour créer des topics de test. À supprimer en production.'
+  // })
+  // async createTestTopics() {
+  //   return this.userTopicSubscriptionsService.createTestTopics();
+  // }
 }

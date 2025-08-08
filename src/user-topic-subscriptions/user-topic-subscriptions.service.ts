@@ -1,14 +1,119 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CreateUserTopicSubscriptionDto, PaginatedUserTopicSubscriptionsDto, UserTopicSubscriptionQueryDto } from './dto/create-user-topic-subscription.dto';
 import { Prisma } from '@prisma/client';
+import { TopicSelectionDto } from './dto/topic-selection.dto';
+import { TopicSelectionResponseDto } from './dto/topic-selection-response.dto';
 
 @Injectable()
 export class UserTopicSubscriptionsService {
-  constructor(private prisma: PrismaService) {}
+  removeSubscriptions(topicIds: string[], id: any) {
+    throw new Error('Method not implemented.');
+  }
+  constructor(private prisma: PrismaService,
+      // private readonly userTopicSubscriptionsService: UserTopicSubscriptionsService
 
-  async create(createUserTopicSubscriptionDto: CreateUserTopicSubscriptionDto) {
-    const { userId, topicId } = createUserTopicSubscriptionDto;
+  ) {}
+
+// Méthode pour afficher tous les topics avec leur statut d'abonnement pour l'utilisateur
+   // Méthode pour créer quelques topics de test (à supprimer en production)
+  // async createTestTopics() {
+  //   const testTopics = [
+  //     { name: 'Technologie', description: 'Topics sur la technologie et l\'innovation' },
+  //     { name: 'Sport', description: 'Topics sur le sport et la santé' },
+  //     { name: 'Culture', description: 'Topics sur la culture et les arts' },
+  //     { name: 'Science', description: 'Topics sur les sciences et la recherche' },
+  //     { name: 'Économie', description: 'Topics sur l\'économie et la finance' }
+  //   ];
+
+  //   for (const topic of testTopics) {
+  //     await this.prisma.topic.upsert({
+  //       where: { name: topic.name },
+  //       update: {},
+  //       create: {
+  //         name: topic.name,
+  //         description: topic.description,
+  //         isActive: true
+  //       }
+  //     });
+  //   }
+
+  //   return { message: 'Topics de test créés' };
+  // }
+
+  async getTopicsWithSubscriptionStatus(userId: string): Promise<TopicSelectionResponseDto> {
+    // Vérifier que l'utilisateur existe
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`Utilisateur avec l'ID ${userId} non trouvé`);
+    }
+
+    // Récupérer tous les topics actifs
+    const topics = await this.prisma.topic.findMany({
+      where: { isActive: true },
+      orderBy: { name: 'asc' },
+    });
+
+    // Si aucun topic n'existe, en créer quelques-uns pour les tests
+    if (topics.length === 0) {
+      console.log('Aucun topic trouvé, création de topics de test...');
+      // await this.createTestTopics();
+      // Récupérer les topics créés
+      const newTopics = await this.prisma.topic.findMany({
+        where: { isActive: true },
+        orderBy: { name: 'asc' },
+      });
+      console.log(`${newTopics.length} topics de test créés`);
+    }
+
+    // Récupérer les topics (avec ceux potentiellement créés)
+    const allTopics = await this.prisma.topic.findMany({
+      where: { isActive: true },
+      orderBy: { name: 'asc' },
+    });
+
+    // Récupérer les abonnements de l'utilisateur
+    const userSubscriptions = await this.prisma.userTopicSubscription.findMany({
+      where: { userId },
+      select: { topicId: true },
+    });
+
+    // Créer un Set pour une recherche rapide
+    const subscribedTopicIds = new Set(userSubscriptions.map(sub => sub.topicId));
+
+    // Mapper les topics avec leur statut d'abonnement
+    const topicsWithStatus: TopicSelectionDto[] = allTopics.map(topic => ({
+      id: topic.id,
+      name: topic.name,
+      description: topic.description,
+      isActive: topic.isActive,
+      isSubscribed: subscribedTopicIds.has(topic.id),
+      createdAt: topic.createdAt,
+      updatedAt: topic.updatedAt,
+    }));
+
+    return {
+      topics: topicsWithStatus,
+      userSubscriptionsCount: userSubscriptions.length,
+    };
+  }
+
+  async createAddTopicsToUser(
+    subscriptions: CreateUserTopicSubscriptionDto[],
+    userId: string,
+  ) {
+    if (!subscriptions || subscriptions.length === 0) {
+      throw new BadRequestException('Aucun topic sélectionné');
+    }
+
+    // Extraire les topicIds depuis le tableau DTO
+    const topicIds: any[] = subscriptions.map(s => s.topicId);
+
+    console.log('TopicIds reçus:', topicIds);
+    console.log('UserId:', userId);
 
     // Vérifier que l'utilisateur existe
     const user = await this.prisma.user.findUnique({
@@ -19,286 +124,124 @@ export class UserTopicSubscriptionsService {
       throw new NotFoundException(`Utilisateur avec l'ID ${userId} non trouvé`);
     }
 
-    // Vérifier que le topic existe et est actif
-    const topic = await this.prisma.topic.findUnique({
-      where: { id: topicId },
+    // Récupérer les topics en base
+    const topics = await this.prisma.topic.findMany({
+      where: { id: { in: topicIds } },
     });
 
-    if (!topic) {
-      throw new NotFoundException(`Topic avec l'ID ${topicId} non trouvé`);
+    console.log('Topics trouvés:', topics.map(t => ({ id: t.id, name: t.name })));
+
+    // Vérifier que tous les topics existent
+    if (topics.length !== topicIds.length) {
+      const existingTopicIds = topics.map(t => t.id);
+      const missingTopicIds = topicIds.filter(id => !existingTopicIds.includes(id));
+      throw new NotFoundException(
+        `Topics non trouvés: ${missingTopicIds.join(', ')}`
+      );
     }
 
-    if (!topic.isActive) {
-      throw new BadRequestException('Impossible de s\'abonner à un topic inactif');
+    // Vérifier qu'ils sont actifs
+    const inactiveTopics = topics.filter(t => !t.isActive);
+    if (inactiveTopics.length > 0) {
+      throw new BadRequestException(
+        `Impossible de s'abonner aux topics inactifs: ${inactiveTopics.map(t => t.name).join(', ')}`
+      );
     }
 
     try {
-      return await this.prisma.userTopicSubscription.create({
-        data: {
+      // Créer les abonnements en bulk avec skipDuplicates
+      const result = await this.prisma.userTopicSubscription.createMany({
+        data: topicIds.map(topicId => ({
           userId,
           topicId,
+        })),
+        skipDuplicates: true,
+      });
+
+      console.log('Résultat createMany:', result);
+
+      // Récupérer les abonnements créés/existants avec les détails des topics
+      const subscriptionsCreated = await this.prisma.userTopicSubscription.findMany({
+        where: {
+          userId,
+          topicId: { in: topicIds },
         },
         include: {
-          user: {
-            select: {
-              id: true,
-              email: true,
-              firstName: true,
-              lastName: true,
-            },
-          },
-          topic: {
-            select: {
-              id: true,
-              name: true,
-              description: true,
-              isActive: true,
-            },
-          },
+          topic: true,
         },
       });
+
+      return {
+        message: `${result.count} nouveaux abonnements créés`,
+        totalSubscriptions: subscriptionsCreated.length,
+        subscriptions: subscriptionsCreated,
+      };
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ConflictException('Cet utilisateur est déjà abonné à ce topic');
-        }
-      }
-      throw error;
+      console.error('Erreur lors de la création des abonnements:', error);
+      throw new InternalServerErrorException(
+        'Erreur lors de la création des abonnements: ' + error.message
+      );
     }
   }
- 
-  // Récupère toutes les subscriptions avec pagination et filtrage.
-  
-  async findAll(query: UserTopicSubscriptionQueryDto): Promise<PaginatedUserTopicSubscriptionsDto> {
-    const { page, limit, userId, topicId, sortBy, sortOrder } = query;
 
-    const currentPage = Number(page) || 1;
-    const currentLimit = Number(limit) || 10;
-    const skip = (currentPage - 1) * currentLimit;
-
-    // Préparation du filtre
-    const where: any = {};
-
-    if (userId) {
-      where.userId = userId;
-    }
-
-    if (topicId) {
-      where.topicId = topicId;
-    }
-
-    // Préparation du tri
-    const orderBy: any = {};
-    if (sortBy) {
-      orderBy[sortBy] = sortOrder || 'asc';
-    } else {
-      orderBy.createdAt = 'desc';
-    }
-
-    // Exécution parallèle des requêtes
-    const [subscriptions, total] = await Promise.all([
-      this.prisma.userTopicSubscription.findMany({
-        where,
-        skip,
-        take: currentLimit,
-        orderBy,
-        include: {
-          user: {
-            select: {
-              id: true,
-              email: true,
-              firstName: true,
-              lastName: true,
-            },
-          },
-          topic: {
-            select: {
-              id: true,
-              name: true,
-              description: true,
-              isActive: true,
-            },
-          },
-        },
-      }),
-      this.prisma.userTopicSubscription.count({ where }),
-    ]);
-
-    const totalPages = Math.ceil(total / currentLimit);
-
-    return {
-      data: subscriptions,
-      total,
-      totalPages,
-      page: currentPage,
-      limit: currentLimit,
-      hasNext: currentPage < totalPages,
-      hasPrevious: currentPage > 1,
-    };
-  }
-
-  async findOne(id: string) {
-    const subscription = await this.prisma.userTopicSubscription.findUnique({
-      where: { id },
-      include: {
-        user: {
-          select: {
-            id: true,
-            email: true,
-            firstName: true,
-            lastName: true,
-          },
-        },
-        topic: {
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            isActive: true,
-          },
-        },
-      },
+  // Autres méthodes du service...
+  async updateUserSubscriptions(newTopicIds: string[], userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
     });
 
-    if (!subscription) {
-      throw new NotFoundException(`Subscription avec l'ID ${id} non trouvée`);
+    if (!user) {
+      throw new NotFoundException(`Utilisateur avec l'ID ${userId} non trouvé`);
     }
 
-    return subscription;
-  }
+    if (newTopicIds.length > 0) {
+      const topics = await this.prisma.topic.findMany({
+        where: { 
+          id: { in: newTopicIds },
+          isActive: true 
+        },
+      });
 
-  async findByUserAndTopic(userId: string, topicId: string) {
-    return await this.prisma.userTopicSubscription.findUnique({
-      where: {
-        userId_topicId: {
-          userId,
-          topicId,
-        },
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            email: true,
-            firstName: true,
-            lastName: true,
-          },
-        },
-        topic: {
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            isActive: true,
-          },
-        },
-      },
+      if (topics.length !== newTopicIds.length) {
+        throw new BadRequestException('Certains topics sont invalides ou inactifs');
+      }
+    }
+
+    return await this.prisma.$transaction(async (prisma) => {
+      await prisma.userTopicSubscription.deleteMany({
+        where: { userId },
+      });
+
+      if (newTopicIds.length > 0) {
+        await prisma.userTopicSubscription.createMany({
+          data: newTopicIds.map(topicId => ({
+            userId,
+            topicId,
+          })),
+        });
+      }
+
+      return await prisma.userTopicSubscription.findMany({
+        where: { userId },
+        include: { topic: true },
+      });
     });
   }
 
   async getUserSubscriptions(userId: string) {
-    return await this.prisma.userTopicSubscription.findMany({
+    const subscriptions = await this.prisma.userTopicSubscription.findMany({
       where: { userId },
       include: {
-        user: {
-           select: {
-            id: true,
-            email: true,
-            firstName: true,
-            lastName: true,
-          },
-        },
-        topic: {
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            isActive: true,
-          },
-        },
+        topic: true,
       },
       orderBy: {
-        createdAt: 'desc',
+        topic: { name: 'asc' },
       },
     });
-  }
-
-  async getTopicSubscriptions(topicId: string) {
-    return await this.prisma.userTopicSubscription.findMany({
-      where: { topicId },
-      include: {
-        user: {
-          select: {
-            id: true,
-            email: true,
-            firstName: true,
-            lastName: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-  }
-
-  async remove(id: string) {
-    try {
-      return await this.prisma.userTopicSubscription.delete({
-        where: { id },
-      });
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') {
-          throw new NotFoundException(`Subscription avec l'ID ${id} non trouvée`);
-        }
-      }
-      throw error;
-    }
-  }
-
-  async removeByUserAndTopic(userId: string, topicId: string) {
-    try {
-      return await this.prisma.userTopicSubscription.delete({
-        where: {
-          userId_topicId: {
-            userId,
-            topicId,
-          },
-        },
-      });
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') {
-          throw new NotFoundException(`Subscription non trouvée pour l'utilisateur ${userId} et le topic ${topicId}`);
-        }
-      }
-      throw error;
-    }
-  }
-
-  async getSubscriptionStats() {
-    const [totalSubscriptions, activeTopicSubscriptions, uniqueUsers] = await Promise.all([
-      this.prisma.userTopicSubscription.count(),
-      this.prisma.userTopicSubscription.count({
-        where: {
-          topic: {
-            isActive: true,
-          },
-        },
-      }),
-      this.prisma.userTopicSubscription.groupBy({
-        by: ['userId'],
-        _count: {
-          userId: true,
-        },
-      }),
-    ]);
 
     return {
-      totalSubscriptions,
-      activeTopicSubscriptions,
-      uniqueUsers: uniqueUsers.length,
+      subscriptions,
+      count: subscriptions.length,
     };
   }
 }

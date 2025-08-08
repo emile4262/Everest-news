@@ -80,8 +80,9 @@ model Topic {
   // Relations
    articles          Article[]              @relation("TopicArticles")   
    subscriptions    UserTopicSubscription[]
-   externalContents ExternalContent[]
+  //  externalContents ExternalContent[]
    //scrapingSources  ScrapingSource[]
+   scraping  Scraping[]
 
   @@map("topics")
 }
@@ -140,27 +141,6 @@ model Notification {
   @@map("notifications")
 }
 
- // Table des contenus externes (scrappés)
-model ExternalContent {
-  id          String              @id @default(cuid())
-  title       String
-  url         String              @unique
-  summary     String?
-  content     String?
-  author      String?
-  source      String
-  type        ExternalContentType
-  publishedAt DateTime?
-  scrapedAt   DateTime            @default(now())
-  isActive    Boolean             @default(true)
-  topicId     String
-
-  // Relations
-  topic Topic                 @relation(fields: [topicId], references: [id])
-  // views ExternalContentView[]
-
-  @@map("external_contents")
-}
 
 // Enum pour les types de contenu externe
 enum ExternalContentType {
@@ -168,6 +148,21 @@ enum ExternalContentType {
   VIDEO
   COURSE
   TUTORIAL
+}
+
+model Scraping {
+
+   title  String
+   channel String
+   videoId  String
+   videoUrl String  @unique
+   thumbnail String
+   publishedat DateTime @default(now())
+   description String
+   topicId     String
+
+  topic Topic                 @relation(fields: [topicId], references: [id])
+
 }
 
 
