@@ -79,9 +79,9 @@ export class UserTopicSubscriptionsController {
     examples: {
       'Exemple simple': {
         value: [
-          { topicId: 'topicId1' },
-          { topicId: 'topicId2' },
-          { topicId: 'topicId3' }
+            'topicId1' ,
+          'topicId2' ,
+           'topicId3' 
         ]
       }
     }
