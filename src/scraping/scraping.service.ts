@@ -12,7 +12,7 @@ export class ScrapingService {
   private readonly apiKey = process.env.YOUTUBE_API_KEY;
   private readonly baseUrl = 'https://www.googleapis.com/youtube/v3/search';
   private readonly devtoApi = process.env.DEVTO_API_KEY;
-  private readonly devtoBaseUrl = 'https://dev.to/api/articles?username=';
+  private readonly devtoBaseUrl = 'https://dev.to/api/articles?username=/search';
   // private readonly mediumApi = process.env.MEDIUM_API_KEY;
   // private readonly mediumBaseUrl = 'https://api.medium.com/v1/users';
   constructor(private readonly http: HttpService ,
@@ -162,11 +162,11 @@ export class ScrapingService {
         description: item.description,
         thumbnail: item.social_image,
         // views: item.page_views_count || 0,
-        likes: item.public_reactions_count || 0,
+        reactions: item.public_reactions_count || 0,
         comments: item.comments_count || 0,
       }))
       // Tri : plus vues > plus likes > plus de commentaires
-      .sort((a, b) =>  b.likes - a.likes || b.comments - a.comments);
+      .sort((a, b) =>  b.reactions - a.reactions || b.comments - a.comments);
 
     this.logger.log(`${devtoArticlesList.length} articles récupérés pour "${query}"`);
     return devtoArticlesList;
@@ -202,7 +202,7 @@ export class ScrapingService {
 //     return data;
 //   });
 
-//   await browser.close();
+//   await browser.close();²
 //   return articles;
  
 

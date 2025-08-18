@@ -5,6 +5,12 @@ import { Exclude, Transform } from 'class-transformer';
 import { UserRole } from 'generated/prisma';
 
 export class CreateUserDto {
+  static firstName(email: (email: any, firstName: any, linktoken: any) => void, firstName: any, linktoken: any) {
+    throw new Error('Method not implemented.');
+  }
+  static email(email: any, firstName: any, linktoken: any) {
+    throw new Error('Method not implemented.');
+  }
 
   @ApiProperty({ example: 'John' })
   @IsString()
