@@ -359,7 +359,7 @@ const getWelcomeEmailTemplate = (firstname: string, links: any): string => {
   // Récupère un utilisateur par son ID
 
   async findOne(id: string): Promise<UserResponseDto> {
-    const user = await this.prisma.user.findUnique({
+    const users = await this.prisma.user.findUnique({
       where: { id },
       select: {
         id: true,
@@ -374,11 +374,11 @@ const getWelcomeEmailTemplate = (firstname: string, links: any): string => {
       },
     });
 
-    if (!user) {
+    if (!users) {
       throw new NotFoundException('Utilisateur non trouvé');
     }
 
-    return new UserResponseDto(user);
+    return new UserResponseDto(users);
   }
 
   // Change le mot de passe de l'utilisateur en envoyant un email de confirmation

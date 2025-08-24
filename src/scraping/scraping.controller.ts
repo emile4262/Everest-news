@@ -36,9 +36,11 @@ export class ScrapingController {
   @ApiQuery({ name: 'topicId', required: false, type: String, description: 'ID du topic pour filtrer les résultats' })
   @ApiQuery({ name: 'query', required: false, type: String, description: ' recherche' })
   @ApiQuery({ name: 'maxResults', required: false, type: Number, description: 'Nombre maximum de résultats à retourner' })
-  async scrapeDevto(@Query() dto:ScrapingDto) {
+  async scrapeDevto(@Query() dto: ScrapingDto): Promise<any> {
     const { query, maxResults = 5, topicId } = dto;
-    return this.scrapingService.scrapeDevtoListings(query, maxResults, topicId); 
+    const url = 'https://dev.to/t/' + (query || 'javascript'); // example URL, adjust as needed
+    const save = false; // or true, depending on your requirements
+    return this.scrapingService.scrapeDevtoListings(query, maxResults, topicId, url, save); 
   }
 
   // @UseGuards(JwtAuthGuard, RolesGuard)

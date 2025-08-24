@@ -2,8 +2,17 @@ import { Injectable, Logger } from '@nestjs/common';
 import {HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { PrismaService } from 'src/common/prisma/prisma.service';
+import { writeFileSync } from 'fs';
+import axios from 'axios';
+import cheerio from 'cheerio';
+import { Article } from 'src/articles/entities/article.entity';
 
-@Injectable()
+
+interface ArticleData {
+  title: string;
+  url: string;
+  image: string | null;
+}
 export class ScrapingService {
   [x: string]: any;
   findAll(query: string, maxResults: number) {
@@ -111,71 +120,99 @@ export class ScrapingService {
 }
 
 
-  async scrapeDevtoListings(query?: string, maxResults = 5, topicId?: string) {
-  // Si pas de query mais topicId fourni, récupérer le nom du topic
-  if ((!query || query.trim() === '') && topicId) {
-    const topic = await this.prisma.topic.findUnique({
-      where: { id: topicId },
-      select: { name: true },
+  
+
+async  scrapeDevtoListings(
+  query: string | undefined,
+  maxResults: number,
+  topicId: string | undefined,
+  url: string,
+  save: boolean
+): Promise<ArticleData[]> {
+  try {
+    // console.log(`Fetching data from ${url}...`);
+
+    const response = await axios.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        'Accept-Language': 'en-US,en;q=0.9',
+      },
+      timeout: 10000,
     });
 
-    if (!topic) {
-      throw new Error(`Topic avec ID ${topicId} introuvable`);
+    if (!response.data || typeof response.data !== 'string') {
+      throw new Error('Contenu non valide (pas de HTML)');
     }
 
-    query = topic.name;
-  }
+    const $ = cheerio.load(response.data);
 
-  if (!query || query.trim() === '') {
-    throw new Error("Le paramètre 'query' est obligatoire");
-  }
+    let articles: ArticleData[] = [];
 
-  try {
-    this.logger.log(`Recherche Dev.to avec query = "${query}"`);
+    $('article').each((_, el) => {
+      const title = $(el).find('h2').text().trim();
+      const url = 'https://dev.to' + ($(el).find('a').attr('href') || '');
+      const image = $(el).find('img').attr('src') || null;
 
-    // Premier et unique appel à l’API Dev.to
-    const response = await firstValueFrom(
-      this.http.get('https://dev.to/api/articles', {
-        params: {
-          tag: query,         
-          per_page: maxResults 
-        },
-        // Si tu as une clé API Dev.to :
-        // headers: { 'api-key': this.devtoApi }
-      })
-    );
+      if (title && url) {
+        articles.push({ title, url, image });
+      }
+    });
 
-    const articles = response.data;
+    if (maxResults > 0) {
+      articles = articles.slice(0, maxResults);
+    }
 
-    if (!Array.isArray(articles) || articles.length === 0) {
-      this.logger.warn('Aucune information trouvée pour la requête.');
+    if (articles.length > 0) {
+      // console.log('Scraped Articles:');
+      articles.forEach((a, i) =>
+        console.log(`${i + 1}. ${a.title} (${a.url})`)
+      );
+
+      if (save) {
+        writeFileSync('articles.json', JSON.stringify(articles, null, 2), 'utf8');
+        // console.log('Articles saved to articles.json');
+      }
+
+      return articles;
+    }
+
+    // console.warn('Aucun article trouvé en scraping, fallback API dev.to...');
+    throw new Error('Scraping vide');
+  } catch (error: any) {
+    // console.error('Scraping échoué:', error.message);
+
+    // ✅ Fallback API dev.to
+    try {
+      const tag = query ? query.split(' ')[0].toLowerCase() : 'javascript';
+      const apiUrl = `https://dev.to/api/articles?tag=${encodeURIComponent(
+        tag
+      )}&per_page=${maxResults || 10}`;
+      // console.log(`Fetching data from API: ${apiUrl}`);
+
+      const apiResponse = await axios.get(apiUrl, {
+        headers: { 'User-Agent': 'Mozilla/5.0' },
+      });
+
+      const articles: ArticleData[] = apiResponse.data.map((article: any) => ({
+        title: article.title,
+        url: article.url,
+        image: article.cover_image || null,
+        views: article.public_reactions_count || 0,
+        comments: article.comments_count || 0,
+      }));
+
+      if (save && articles.length > 0) {
+        writeFileSync('articles.json', JSON.stringify(articles, null, 2), 'utf8');
+        // console.log('Articles saved to articles.json');
+      }
+
+      return articles;
+    } catch (apiError: any) {
+      // console.error('Fallback API dev.to échoué:', apiError.message);
       return [];
     }
-
-    // Mapper les articles avec les bonnes propriétés
-    const devtoArticlesList = articles
-      .map((item) => ({
-        title: item.title,
-        url: `https://dev.to/${item.user.username}/${item.slug}`,
-        publishedAt: item.published_at,
-        author: item.user?.name || item.user?.username,
-        description: item.description,
-        thumbnail: item.social_image,
-        // views: item.page_views_count || 0,
-        reactions: item.public_reactions_count || 0,
-        comments: item.comments_count || 0,
-      }))
-      // Tri : plus vues > plus likes > plus de commentaires
-      .sort((a, b) =>  b.reactions - a.reactions || b.comments - a.comments);
-
-    this.logger.log(`${devtoArticlesList.length} articles récupérés pour "${query}"`);
-    return devtoArticlesList;
-
-  } catch (error) {
-    this.logger.error(`Erreur scraping Dev.to : ${error.message}`);
-    throw error;
   }
-}
+
 
 
 // async scrapeMediumCategory(username: string) {
@@ -206,6 +243,8 @@ export class ScrapingService {
 //   return articles;
  
 
+  }
  }
+   
 
   
