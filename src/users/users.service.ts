@@ -84,7 +84,7 @@ if (role) {
   where.isActive = String(isActive) === 'true';
 }
 
-const getWelcomeEmailTemplate = (firstname: string, links: any): string => {
+const getWelcomeEmailTemplate = (firstname: string, links: string): string => {
       return `
     <!DOCTYPE html>
     <html lang="fr">
